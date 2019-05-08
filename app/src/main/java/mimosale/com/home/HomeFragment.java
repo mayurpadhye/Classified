@@ -11,6 +11,7 @@ import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.StrictMode;
 import android.provider.Settings;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
@@ -104,18 +105,20 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         v = inflater.inflate(R.layout.fragment_home, container, false);
 device_id=Settings.Secure.getString(getActivity().getContentResolver(), Settings.Secure.ANDROID_ID);
         initView(v);
+        /*StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 
-translate("hello", "ja", new TranslateCallback() {
+        StrictMode.setThreadPolicy(policy);
+        translate("hello", "ja", new TranslateCallback() {
     @Override
     public void onSuccess(String translatedText) {
         Toast.makeText(getActivity(), ""+translatedText, Toast.LENGTH_SHORT).show();
     }
 
     @Override
-    public void onFailure() {
-
+    public void onFailure(Exception e) {
+        Toast.makeText(getActivity(), ""+e.toString(), Toast.LENGTH_SHORT).show();
     }
-});
+});*/
         //Toast.makeText(getActivity(), ""+), Toast.LENGTH_SHORT).show();
         return v;
     }
@@ -505,14 +508,14 @@ translate("hello", "ja", new TranslateCallback() {
     private void translate(String textToTranslate, String targetLanguage, TranslateCallback callback) {
         try {
             TranslateOptions options = TranslateOptions.newBuilder()
-                    .setApiKey("AIzaSyC6in7wfj-jFmh4rINHmZ8Pu13IfqNvUYw")
+                    .setApiKey("AIzaSyBM4MOjpKKLmwzE5i94wdQJABy0knj49No")
 						.build();
             Translate trService = options.getService();
             Translation translation = trService.translate(textToTranslate,Translate.TranslateOption.targetLanguage(targetLanguage));
             callback.onSuccess(translation.getTranslatedText());
         }
         catch(Exception e) {
-            callback.onFailure();
+            callback.onFailure(e);
         }
     }
 

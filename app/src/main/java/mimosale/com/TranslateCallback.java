@@ -2,5 +2,5 @@ package mimosale.com;
 
 public interface TranslateCallback {
     void onSuccess(String translatedText);
-    void onFailure();
+    void onFailure(Exception e);
 }
