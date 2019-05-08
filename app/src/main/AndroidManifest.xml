@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="mimosale.com">
+
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="com.google.android.providers.gsf.permission.    READ_GSERVICES" />
+
+    <application
+        android:name="mimosale.com.helperClass.AppController"
+        android:allowBackup="true"
+        android:icon="@mipmap/logo_icon"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/logo_icon"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme.NoActionBarTransperent"
+        android:windowSoftInputMode="adjustPan"
+        tools:replace="android:icon,android:theme"
+        tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name="mimosale.com.settings.ChangeLanguageActivity" />
+        <activity android:name="mimosale.com.search.SearchResultActivity" />
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyC6in7wfj-jFmh4rINHmZ8Pu13IfqNvUYw" />
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
+        </provider>
+
+        <activity
+            android:name="mimosale.com.spalsh.SplashActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBarTransperent">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="mimosale.com.login.LoginActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBarTransperent" />
+        <activity
+            android:name="mimosale.com.noInternet.NoInternetActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="mimosale.com.home.HomeActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBarTransperent" />
+        <activity
+            android:name="mimosale.com.signup.RegistrationActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBarTransperent" />
+        <activity
+            android:name="mimosale.com.shop.ShopPostingActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBarTransperent" />
+        <activity
+            android:name="mimosale.com.shop.ShopPreviewActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBarTransperent" />
+        <activity
+            android:name="mimosale.com.profile.ProfileActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBarTransperent" />
+        <activity
+            android:name="mimosale.com.preferences.AddPreferencesActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBarTransperent" />
+        <activity
+            android:name="mimosale.com.products.AllProductsActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBarTransperent" />
+        <activity
+            android:name="mimosale.com.post.SalePostingActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBarTransperent" />
+        <activity
+            android:name="mimosale.com.products.AddProductsActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBarTransperent" />
+        <activity
+            android:name="mimosale.com.products.ProductDetailsActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBarTransperent" />
+        <activity
+            android:name="mimosale.com.home.shop_sale.SelectPostingActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBarTransperent" />
+        <activity
+            android:name="mimosale.com.post.SalePostingPreviewActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBarTransperent" />
+        <activity
+            android:name="mimosale.com.my_posting.MyPostingActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBarTransperent" />
+        <activity
+            android:name="mimosale.com.post.MyPostingDetailsAcrivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBarTransperent" />
+        <activity android:name="mimosale.com.home.preferences.MyPreferences" />
+        <activity android:name="mimosale.com.preferences.MyPreferencesActivity" />
+
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
+
+        <activity
+            android:name="mimosale.com.shop.ShopDetailActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen" />
+        <activity android:name="mimosale.com.feedback.FeedBackActivity" />
+        <activity android:name="mimosale.com.following.FollowingShopActivity" />
+        <activity android:name="mimosale.com.account.TermsAndConditionActivity" />
+        <activity
+            android:name="mimosale.com.google_map.ShopsOnMapActivity"
+            android:label="@string/title_activity_shops_on_map" />
+        <activity android:name="mimosale.com.profile.ProfilePictureActivity"></activity>
+    </application>
+
+</manifest>

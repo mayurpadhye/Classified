@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+     >
+
+    <ImageView
+        android:id="@+id/image"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:adjustViewBounds="true"
+        android:layout_gravity="center"
+        android:scaleType="centerCrop" />
+    <LinearLayout
+        android:id="@+id/opacityFilter"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="#5b000000"
+        android:gravity="bottom"
+        android:orientation="vertical" >
+
+    </LinearLayout>
+</RelativeLayout>

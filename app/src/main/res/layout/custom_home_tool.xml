@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="55dp"
+android:layout_margin="5dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_margin="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+
+
+        >
+        <com.github.siyamed.shapeimageview.RoundedImageView
+            android:id="@+id/iv_logo"
+            app:siRadius="2dp"
+            android:layout_width="30dp"
+            android:layout_centerVertical="true"
+            android:layout_height="30dp"
+            android:padding="1dp"
+            app:siBorderColor="@color/colorAccent"
+            app:siBorderWidth="0.5dp"
+            android:visibility="gone"
+            android:layout_marginRight="5dp"
+            android:layout_alignParentLeft="true"
+            android:src="@drawable/logo_icon" />
+        <TextView
+            android:id="@+id/et_search"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:layout_toRightOf="@+id/iv_logo"
+            android:layout_centerVertical="true"
+            android:editable="false"
+            android:focusable="false"
+            android:background="@drawable/edit_back"
+            android:focusableInTouchMode="true"
+            android:backgroundTint="@null"
+            android:backgroundTintMode="@null"
+            android:layout_toLeftOf="@+id/iv_map"
+            android:padding="10dp"
+            android:drawableLeft="@drawable/search_24"
+            android:drawablePadding="10dp"
+            android:hint="@string/search"
+            android:textSize="14dp"
+            />
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_centerVertical="true"
+            android:id="@+id/iv_map"
+             android:padding="3dp"
+            android:layout_toLeftOf="@+id/iv_yen"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:src="@drawable/map_icon_white"
+            />
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="4dp"
+            android:id="@+id/iv_yen"
+            android:padding="3dp"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/yen_white"
+            />
+    </RelativeLayout>
+
+
+</RelativeLayout>

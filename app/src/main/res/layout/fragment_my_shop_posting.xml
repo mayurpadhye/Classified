@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    tools:context=".classi.home.fragments.ShopSaleFragment">
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <android.support.v7.widget.RecyclerView
+                android:background="@color/white_smoke"
+                android:id="@+id/rv_shop_sale"
+                android:layout_width="match_parent"
+                android:nestedScrollingEnabled="false"
+                android:layout_height="wrap_content"/>
+        </RelativeLayout>
+    </android.support.v4.widget.NestedScrollView>
+    <ProgressBar
+        android:id="@+id/p_bar"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        />
+    <TextView
+        android:id="@+id/tv_no_shop"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/no_shop_posting"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:visibility="gone"
+
+        />
+
+</RelativeLayout>

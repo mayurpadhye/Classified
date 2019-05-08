@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white_smoke"
+
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        >
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/preferences"
+        android:padding="10dp"
+        android:visibility="gone"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        ></TextView>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="50dp"
+        >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            >
+            <android.support.v7.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                android:id="@+id/rv_preferences"
+                android:background="@color/white_smoke"
+                ></android.support.v7.widget.RecyclerView>
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/iv_add_post"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:padding="2dp"
+            android:visibility="gone"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/add_post"
+            android:layout_weight="0.9"
+            />
+    </LinearLayout>
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        app:cardUseCompatPadding="true"
+        app:cardCornerRadius="5dp"
+
+        ><RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ImageView
+            android:id="@+id/iv_banner_image"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:scaleType="fitXY"
+
+            />
+        <android.support.v4.view.ViewPager
+            android:id="@+id/main_banner"
+           android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/one_fifity_dp"></android.support.v4.view.ViewPager>
+
+
+    </RelativeLayout>
+    </android.support.v7.widget.CardView>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                >
+
+                <android.support.design.widget.TabLayout
+                    android:id="@+id/tabs"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:background="@color/white"
+                    app:layout_anchor="@id/appBar"
+                    app:tabGravity="fill"
+
+                    app:tabTextColor="#000000"
+                    app:tabIndicatorColor="#ff00"
+                    app:tabSelectedTextColor="@color/black"
+                    app:tabMode="scrollable"
+                    app:layout_anchorGravity="bottom" />
+                <mimosale.com.home.fragments.EnhancedWrapContentViewPager
+                    android:id="@+id/viewpager"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+            </LinearLayout>
+
+
+    </LinearLayout>
+</RelativeLayout>
