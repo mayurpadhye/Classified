@@ -105,7 +105,17 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
 device_id=Settings.Secure.getString(getActivity().getContentResolver(), Settings.Secure.ANDROID_ID);
         initView(v);
 
+translate("hello", "ja", new TranslateCallback() {
+    @Override
+    public void onSuccess(String translatedText) {
+        Toast.makeText(getActivity(), ""+translatedText, Toast.LENGTH_SHORT).show();
+    }
 
+    @Override
+    public void onFailure() {
+
+    }
+});
         //Toast.makeText(getActivity(), ""+), Toast.LENGTH_SHORT).show();
         return v;
     }
