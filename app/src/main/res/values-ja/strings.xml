@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Classified</string>
+    <string name="app_name">MimoSale</string>
     <string name="ok">OK</string>
     <string name="success">成功</string>
     <string name="home">ホーム</string>
@@ -19,13 +19,13 @@
     <string name="product">商品</string>
     <string name="products">商品</string>
     <string name="furnitures">家具</string>
-    <string name="double_bed_sigma">Double Bed Sigma</string>
+    <string name="double_bed_sigma">ダブルベッドシグマ</string>
     <string name="email">メール</string>
     <string name="password">パスワード</string>
     <string name="forgot_pass">パスワードをお忘れですか?</string>
     <string name="login">ログイン</string>
-    <string name="sign_up_msg"></string>
-    <string name="or">OR</string>
+    <string name="sign_up_msg">アカウントを持っていませんか？ここに登録</string>
+    <string name="or">または</string>
     <string name="login_with_facebook">Facebookでログイン</string>
     <string name="login_with_google">Googleでログイン</string>
     <string name="login_with_instagram">Instagramでログイン</string>
@@ -44,7 +44,7 @@
     <string name="messages">メッセージ</string>
     <string name="transaction_history">購入履歴</string>
     <string name="followers">フォロワー</string>
-    <string name="help_support"><![CDATA[Help & Support]]></string>
+    <string name="help_support">ヘルプサポート</string>
     <string name="log_out">サインアウト</string>
     <string name="forgot_password">パスワードをお忘れですか？</string>
     <string name="enter_registered_email_id">メールアドレスを入力してください</string>
@@ -94,13 +94,13 @@
     <string name="view_all">全てを見る</string>
     <string name="bed">ベッド</string>
     <string name="title">タイトル</string>
-    <string name="post"><![CDATA[Posts (Shop & Sale,Products)]]></string>
-    <string name="my_post"><![CDATA[My Posts (Shop & Sale,Products)]]></string>
+    <string name="post">投稿（シ​​ョップ＆セール、商品）</string>
+    <string name="my_post">私の投稿（ショップ＆セール、商品）</string>
     <string name="search_by_pincode">郵便番号で検索</string>
     <string name="short_description">説明</string>
     <string name="add_discount">ディスカウントを追加</string>
-    <string name="min_discount">Min Discount</string>
-    <string name="max_discount">Max Discount</string>
+    <string name="min_discount">最小割引</string>
+    <string name="max_discount">最大割引</string>
     <string name="end_date">終了日</string>
     <string name="start_date">開始日</string>
     <string name="do_you_want_to_go_premimum">プレミアムへアップグレードしませんか？</string>
@@ -110,7 +110,7 @@
     <string name="price_">価格</string>
     <string name="images">写真</string>
     <string name="add_products">商品を追加</string>
-    <string name="shop_and_sale"><![CDATA[Shop & Sale]]></string>
+    <string name="shop_and_sale">ショップ＆セール</string>
     <string name="select_posting">投稿を選択</string>
     <string name="search_picode">郵便番号で検索</string>
     <string name="sale_posting">商品投稿</string>
