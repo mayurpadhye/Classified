@@ -241,7 +241,7 @@
     <string name="good">良い</string>
     <string name="bad">悪い</string>
     <string name="average">平均</string>
-    <string name="feedback_que_10">" Q10。情報が多すぎるか少なすぎるか"</string>
+    <string name="feedback_que_10">Q10。情報が多すぎるか少なすぎるか</string>
     <string name="feedback_que_11">Q11。あなたが私たちにやりたいことを私たちに教えてください？</string>
     <string name="feedback">フィードバック</string>
     <string name="how_app">アプリのデザインはどうですか？</string>

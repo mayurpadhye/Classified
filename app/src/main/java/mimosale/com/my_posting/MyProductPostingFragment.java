@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import mimosale.com.R;
@@ -44,6 +45,7 @@ View v;
 RecyclerView rv_products;
 ProgressBar p_bar;
 List<AllProductPojo>allProductPojoList=new ArrayList<>();
+TextView tv_no_posting;
     public MyProductPostingFragment() {
         // Required empty public constructor
     }
@@ -72,6 +74,7 @@ List<AllProductPojo>allProductPojoList=new ArrayList<>();
     {
         rv_products=v.findViewById(R.id.rv_products);
         p_bar=v.findViewById(R.id.p_bar);
+        tv_no_posting=v.findViewById(R.id.tv_no_posting);
 
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
         gridLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -99,7 +102,7 @@ List<AllProductPojo>allProductPojoList=new ArrayList<>();
                         allProductPojoList.clear();
                         JSONObject jsonObject = new JSONObject(jsonElement.toString());
                         String status = jsonObject.getString("status");
-
+                        p_bar.setVisibility(View.GONE);
                         if (status.equals("1")) {
                             JSONArray data = jsonObject.getJSONArray("data");
                             for (int i = 0; i < data.length(); i++) {
@@ -124,10 +127,19 @@ List<AllProductPojo>allProductPojoList=new ArrayList<>();
                                 */
                                 allProductPojoList.add(new AllProductPojo(id,name,shop_id,user_id,description,price,hash_tag,status1,image1,image2));
                             }
+                            if (data.length()>0)
+                            {
+                                tv_no_posting.setVisibility(View.VISIBLE);
+                                ProductsAdapter shopSaleAdapter = new ProductsAdapter(allProductPojoList, getActivity());
+                                rv_products.setAdapter(shopSaleAdapter);
 
-                            ProductsAdapter shopSaleAdapter = new ProductsAdapter(allProductPojoList, getActivity());
-                            rv_products.setAdapter(shopSaleAdapter);
-                            p_bar.setVisibility(View.GONE);
+                            }
+                            else
+                            {
+                                tv_no_posting.setVisibility(View.VISIBLE);
+                            }
+
+
 
                         }
 

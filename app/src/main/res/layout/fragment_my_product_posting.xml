@@ -20,4 +20,15 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/no_product_posting"
+        android:layout_marginTop="250dp"
+        android:gravity="center"
+        android:textSize="17dp"
+       android:visibility="gone"
+        android:id="@+id/tv_no_posting"
+        />
 </RelativeLayout>
