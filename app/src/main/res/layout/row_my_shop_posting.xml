@@ -13,28 +13,37 @@
         android:layout_height="match_parent"
         android:layout_marginTop="5dp"
         android:orientation="vertical">
-
-<ImageView
-    android:id="@+id/iv_pop_up"
-    android:src="@drawable/ic_pop_up"
-    android:layout_width="30dp"
-    android:visibility="gone"
-    android:layout_height="30dp"
-    android:layout_gravity="right"/>
-        <TextView
-            android:id="@+id/tv_product_name"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:layout_marginTop="5dp"
-            android:layout_weight="0.2"
-            android:ellipsize="end"
-            android:ems="3"
-            android:fontFamily="sans-serif"
-            android:maxLines="1"
+            android:orientation="horizontal"
+            >
+            <TextView
+                android:id="@+id/tv_product_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="5dp"
 
-            android:text="Product Two"
-            android:textSize="17dp" />
+                android:layout_weight="0.1"
+                android:ellipsize="end"
+                android:ems="3"
+                android:fontFamily="sans-serif"
+                android:maxLines="1"
+
+                android:text="Product Two"
+                android:textSize="17dp" />
+            <ImageView
+                android:id="@+id/iv_pop_up"
+                android:src="@drawable/ic_pop_up"
+                android:layout_width="match_parent"
+                android:layout_weight="0.9"
+                android:visibility="visible"
+                android:layout_height="30dp"
+                android:layout_gravity="right"/>
+        </LinearLayout>
+
+
 
         <RelativeLayout
             android:layout_width="match_parent"

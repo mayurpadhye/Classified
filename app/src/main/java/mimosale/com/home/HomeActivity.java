@@ -307,7 +307,7 @@ RelativeLayout rl_posting;
             case R.id.rb_shop_posting:
 
                 if (PrefManager.getInstance(HomeActivity.this).IS_LOGIN()) {
-                    startActivity(new Intent(HomeActivity.this, ShopPostingActivity.class));
+                    startActivity(new Intent(HomeActivity.this, ShopPostingActivity.class).putExtra("isUpdate","create_shop"));
                 } else {
                     dialogLoginWarning("shop_posting");
 
@@ -317,7 +317,7 @@ RelativeLayout rl_posting;
                 break;
             case R.id.rb_sale_posting:
                 if (PrefManager.getInstance(HomeActivity.this).IS_LOGIN()) {
-                    startActivity(new Intent(HomeActivity.this, SalePostingActivity.class));
+                    startActivity(new Intent(HomeActivity.this, SalePostingActivity.class).putExtra("isUpdate","false"));
                 } else {
                     dialogLoginWarning("sale_posting");
 
@@ -327,7 +327,7 @@ RelativeLayout rl_posting;
                 break;
             case R.id.rb_product_posting:
                 if (PrefManager.getInstance(HomeActivity.this).IS_LOGIN()) {
-                    startActivity(new Intent(HomeActivity.this, AddProductsActivity.class));
+                    startActivity(new Intent(HomeActivity.this, AddProductsActivity.class).putExtra("isUpdate","false"));
                 } else {
                     dialogLoginWarning("product_posting");
 
@@ -355,9 +355,9 @@ RelativeLayout rl_posting;
                 } else if (data.getStringExtra("intent_from").equals("shop_posting")) {
                     startActivity(new Intent(HomeActivity.this, ShopPostingActivity.class));
                 } else if (data.getStringExtra("intent_from").equals("sale_posting")) {
-                    startActivity(new Intent(HomeActivity.this, SalePostingActivity.class));
+                    startActivity(new Intent(HomeActivity.this, SalePostingActivity.class).putExtra("isUpdate","false"));
                 } else if (data.getStringExtra("intent_from").equals("product_posting")) {
-                    startActivity(new Intent(HomeActivity.this, AddProductsActivity.class));
+                    startActivity(new Intent(HomeActivity.this, AddProductsActivity.class).putExtra("isUpdate","false"));
                 } else if (data.getStringExtra("intent_from").equals("add_pref")) {
 
                 }

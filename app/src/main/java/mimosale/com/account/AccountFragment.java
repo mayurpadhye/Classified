@@ -300,7 +300,7 @@ else
 
             case R.id.rb_shop_posting:
                 if (PrefManager.getInstance(getActivity()).IS_LOGIN()) {
-                    startActivity(new Intent(getActivity(), ShopPostingActivity.class));
+                    startActivity(new Intent(getActivity(), ShopPostingActivity.class).putExtra("isUpdate","false"));
                     dialog.dismiss();
                 } else {
                     dialogLoginWarning("account");
@@ -311,7 +311,7 @@ else
                 break;
             case R.id.rb_sale_posting:
                 if (PrefManager.getInstance(getActivity()).IS_LOGIN()) {
-                    startActivity(new Intent(getActivity(), SalePostingActivity.class));
+                    startActivity(new Intent(getActivity(), SalePostingActivity.class).putExtra("isUpdate","false"));
                     dialog.dismiss();
                 } else {
                     dialogLoginWarning("account");
@@ -322,9 +322,39 @@ else
 
 
             case R.id.tv_log_out:
-                PrefManager.getInstance(getActivity()).Logout();
-                startActivity(new Intent(getActivity(),LoginActivity.class).putExtra("intent_from","login"));
-                getActivity().finish();
+
+                new SweetAlertDialog(getActivity(), SweetAlertDialog.WARNING_TYPE)
+                        .setTitleText(getActivity().getResources().getString(R.string.log_out))
+                        .setContentText(getResources().getString(R.string.want_logout))
+                        .setConfirmText(getResources().getString(R.string.yes))
+                        .setCancelText(getResources().getString(R.string.cancel))
+
+                        .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                            @Override
+                            public void onClick(SweetAlertDialog sDialog) {
+
+                                PrefManager.getInstance(getActivity()).Logout();
+                                startActivity(new Intent(getActivity(),LoginActivity.class).putExtra("intent_from","login"));
+                                getActivity().finish();
+
+
+                                sDialog.dismissWithAnimation();
+                            }
+                        })
+                        .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                            @Override
+                            public void onClick(SweetAlertDialog sweetAlertDialog) {
+                                sweetAlertDialog.dismissWithAnimation();
+                            }
+                        })
+                        .show();
+                break;
+
+
+            case R.id.tv_help_support:
+
+                startActivity(new Intent(getActivity(),HelpSupportActivity.class));
+
                 break;
 
         }

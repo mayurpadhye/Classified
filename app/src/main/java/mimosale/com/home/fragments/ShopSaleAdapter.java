@@ -68,8 +68,8 @@ public class ShopSaleAdapter extends RecyclerView.Adapter<ShopSaleAdapter.MyView
         holder.shimmer_view_container1.startShimmerAnimation();
         shimmer.start(holder.shimmer_premium);
 
-        Picasso.with(mctx).load(WebServiceURLs.SHOP_IMAGE + items.getImage()).into(holder.iv_product_image1);
-        Picasso.with(mctx).load(WebServiceURLs.SHOP_IMAGE + items.getImage2()).into(holder.iv_product_image2);
+        Picasso.with(mctx).load(WebServiceURLs.SHOP_IMAGE + items.getImage()).resize(120, 120).into(holder.iv_product_image1);
+        Picasso.with(mctx).load(WebServiceURLs.SHOP_IMAGE + items.getImage2()).resize(120, 120).into(holder.iv_product_image2);
        // Glide.with(mctx).load("http://4.bp.blogspot.com/-zlCqi4iWQb8/Tk_iLyLnoVI/AAAAAAAAED4/egErzO8ARQ0/s1600/s%25C3%25BCti+4548.jpg").into(holder.iv_product_image1);
      //   Glide.with(mctx).setDefaultRequestOptions(requestOptions).load(WebServiceURLs.SHOP_IMAGE + items.getImage2()).into(holder.iv_product_image2);
         holder.tv_price_range.setText("" + items.getLow_price() + "-" + items.getHigh_price());

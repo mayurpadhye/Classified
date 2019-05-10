@@ -24,6 +24,7 @@ import mimosale.com.network.RestInterface;
 import mimosale.com.network.RetrofitClient;
 import mimosale.com.network.WebServiceURLs;
 import mimosale.com.products.AddProductsActivity;
+
 import com.google.gson.JsonElement;
 import com.thomashaertel.widget.MultiSpinner;
 
@@ -52,7 +53,6 @@ public class SalePostingActivity extends AppCompatActivity {
     ImageView iv_back;
     Spinner sp_shops;
     MultiSpinner sp_products;
-
     ProgressBar p_bar;
     Spinner sp_products_details;
     List<String> shopnameList = new ArrayList<>();
@@ -63,8 +63,11 @@ public class SalePostingActivity extends AppCompatActivity {
     String shop_id = "";
     String product_id = "";
     Button btn_submit;
+    Intent i;
     TextInputLayout tl_add_url, tl_short_desc, tl_hash_tag, tl_min_discount, tl_max_discount, tl_start_date, tl_end_date, tl_title;
     EditText et_title, et_start_date, et_end_date, et_min_discount, et_max_discount, et_short_desc, et_hash_tag, et_add_url;
+    String isUpdate = "";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +101,7 @@ public class SalePostingActivity extends AppCompatActivity {
                 myCalendar.set(Calendar.MONTH, monthOfYear);
                 myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
                 updateLabel();
+
             }
 
         };
@@ -203,7 +207,7 @@ public class SalePostingActivity extends AppCompatActivity {
             tl_title.setError(null);
         }
 
-        if (et_short_desc.getText().toString().trim().length() ==0) {
+        if (et_short_desc.getText().toString().trim().length() == 0) {
 
             et_short_desc.requestFocus();
             tl_short_desc.setError(getResources().getString(R.string.enter_sale_desc));
@@ -261,29 +265,29 @@ public class SalePostingActivity extends AppCompatActivity {
 
         }
 
-        if (et_min_discount.getText().toString().trim().length()>0 && et_max_discount.getText().toString().trim().length()>0)
-        {
+        if (et_min_discount.getText().toString().trim().length() > 0 && et_max_discount.getText().toString().trim().length() > 0) {
             if (et_min_discount.getText().toString().trim().length() > et_max_discount.getText().toString().trim().length()) {
-                tl_min_discount.setError(""+getResources().getString(R.string.min_discount_error));
+                tl_min_discount.setError("" + getResources().getString(R.string.min_discount_error));
                 return;
             } else if (et_max_discount.getText().toString().trim().length() < et_min_discount.getText().toString().trim().length()) {
-                tl_max_discount.setError(""+getResources().getString(R.string.max_dis_error));
+                tl_max_discount.setError("" + getResources().getString(R.string.max_dis_error));
                 return;
             }
-        }
-        else
-        {
-            Toast.makeText(this, ""+getResources().getString(R.string.please_add_discount), Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "" + getResources().getString(R.string.please_add_discount), Toast.LENGTH_SHORT).show();
             return;
         }
 
+        if (!isUpdate.equals("true"))
+            saveSalePosting();
+        else
+            updateSalePosting();
 
-        saveSalePosting();
     }
 
-    public void saveSalePosting() {
+    public void updateSalePosting() {
         try {
-p_bar.setVisibility(View.VISIBLE);
+            p_bar.setVisibility(View.VISIBLE);
             String title = et_title.getText().toString();
             String min_discount = et_min_discount.getText().toString();
             String max_discount = et_max_discount.getText().toString();
@@ -291,12 +295,80 @@ p_bar.setVisibility(View.VISIBLE);
             String description = et_short_desc.getText().toString();
             String web_url = et_add_url.getText().toString();
             String user_id = PrefManager.getInstance(SalePostingActivity.this).getUserId();
-
-JSONArray product_ids=new JSONArray();
-product_ids.put(product_id);
+            JSONArray product_ids = new JSONArray();
+            product_ids.put(product_id);
             RetrofitClient retrofitClient = new RetrofitClient();
             RestInterface service = retrofitClient.getAPIClient(WebServiceURLs.DOMAIN_NAME);
-            service.addSalePosting(title,shop_id,product_ids.toString(),min_discount,max_discount,hash_tags,description,web_url,user_id,"Bearer " + PrefManager.getInstance(SalePostingActivity.this).getApiToken(),
+            service.updateSalePosting(title, shop_id, product_ids.toString(), min_discount, max_discount, hash_tags, description, web_url, user_id, "Bearer " + PrefManager.getInstance(SalePostingActivity.this).getApiToken(),
+                    new Callback<JsonElement>() {
+                        @Override
+                        public void success(JsonElement jsonElement, Response response) {
+                            //this method call if webservice success
+                            try {
+                                p_bar.setVisibility(View.GONE);
+                                JSONObject jsonObject = new JSONObject(jsonElement.toString());
+                                String status = jsonObject.getString("status");
+
+                                if (status.equals("1")) {
+
+                                    //   Toast.makeText(SalePostingActivity.this, "" + jsonObject.getString("message"), Toast.LENGTH_SHORT).show();
+
+                                    new SweetAlertDialog(SalePostingActivity.this, SweetAlertDialog.SUCCESS_TYPE)
+                                            .setTitleText(getResources().getString(R.string.success))
+
+                                            .setContentText("" + getResources().getString(R.string.sale_updated))
+                                            .setConfirmText(getResources().getString(R.string.ok))
+                                            .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                                                @Override
+                                                public void onClick(SweetAlertDialog sweetAlertDialog) {
+                                                    finish();
+                                                }
+                                            })
+                                            .show();
+
+                                } else {
+                                    p_bar.setVisibility(View.GONE);
+                                    Toast.makeText(SalePostingActivity.this, "" + getResources().getString(R.string.unable_to_update), Toast.LENGTH_SHORT).show();
+
+                                }
+
+                                p_bar.setVisibility(View.GONE);
+                            } catch (JSONException | NullPointerException e) {
+                                e.printStackTrace();
+
+                            }
+                        }
+
+                        @Override
+                        public void failure(RetrofitError error) {
+                            p_bar.setVisibility(View.GONE);
+                            Toast.makeText(SalePostingActivity.this, getString(R.string.check_internet), Toast.LENGTH_LONG).show();
+                            Log.i("fdfdfdfdfdf", "" + error.getMessage());
+
+                        }
+                    });
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
+
+    }
+
+    public void saveSalePosting() {
+        try {
+            p_bar.setVisibility(View.VISIBLE);
+            String title = et_title.getText().toString();
+            String min_discount = et_min_discount.getText().toString();
+            String max_discount = et_max_discount.getText().toString();
+            String hash_tags = et_hash_tag.getText().toString();
+            String description = et_short_desc.getText().toString();
+            String web_url = et_add_url.getText().toString();
+            String user_id = PrefManager.getInstance(SalePostingActivity.this).getUserId();
+            JSONArray product_ids = new JSONArray();
+            product_ids.put(product_id);
+            RetrofitClient retrofitClient = new RetrofitClient();
+            RestInterface service = retrofitClient.getAPIClient(WebServiceURLs.DOMAIN_NAME);
+            service.addSalePosting(title, shop_id, product_ids.toString(), min_discount, max_discount, hash_tags, description, web_url, user_id, "Bearer " + PrefManager.getInstance(SalePostingActivity.this).getApiToken(),
                     new Callback<JsonElement>() {
                         @Override
                         public void success(JsonElement jsonElement, Response response) {
@@ -361,7 +433,7 @@ product_ids.put(product_id);
             service.getUserShop(PrefManager.getInstance(SalePostingActivity.this).getUserId(), "Bearer " + PrefManager.getInstance(SalePostingActivity.this).getApiToken(), new Callback<JsonElement>() {
                 @Override
                 public void success(JsonElement jsonElement, Response response) {
-                     try {
+                    try {
 
                         JSONObject jsonObject = new JSONObject(jsonElement.toString());
                         String status = jsonObject.getString("status");
@@ -377,7 +449,7 @@ product_ids.put(product_id);
 
 
                             }
-                            if (data.length()>0) {
+                            if (data.length() > 0) {
                                 shopnameList.add(0, "" + getResources().getString(R.string.select_shop));
                                 shopId.add(0, "selct id");
                                 ArrayAdapter<String> adapter = new ArrayAdapter<String>(
@@ -386,10 +458,7 @@ product_ids.put(product_id);
                                         shopnameList
                                 );
                                 sp_shops.setAdapter(adapter);
-                            }
-
-                            else
-                            {
+                            } else {
                                 new SweetAlertDialog(SalePostingActivity.this, SweetAlertDialog.WARNING_TYPE)
                                         .setTitleText("No Shop Available")
 
@@ -403,10 +472,7 @@ product_ids.put(product_id);
                                         })
                                         .show();
                             }
-                        }
-
-                        else
-                        {
+                        } else {
 
                         }
                         p_bar.setVisibility(View.GONE);
@@ -461,6 +527,28 @@ product_ids.put(product_id);
 
         toolbar_title.setText(getResources().getString(R.string.sale_posting));
         sp_products_details = findViewById(R.id.sp_products_details);
+        i = getIntent();
+        ;
+        isUpdate = i.getStringExtra("isUpdate");
+        if (isUpdate.equals("true")) {
+            String shop_id = i.getStringExtra("shop_id");
+            String sale_name = i.getStringExtra("sale_name");
+            String desc = i.getStringExtra("desc");
+            String price = i.getStringExtra("price");
+            String sale_id = i.getStringExtra("sale_id");
+            String min_discount = i.getStringExtra("min_discount");
+            String max_discount = i.getStringExtra("max_discount");
+            String hash_tag = i.getStringExtra("hash_tag");
+
+            et_title.setText(sale_name);
+            et_short_desc.setText(desc);
+            et_min_discount.setText(min_discount);
+            et_max_discount.setText(max_discount);
+            et_hash_tag.setText(hash_tag);
+
+        }
+
+
     }
 
     public static boolean isDateAfter(String startDate, String endDate) {
@@ -527,9 +615,7 @@ product_ids.put(product_id);
                                 }
 // do something here when u item is selected from that spinner
                             });
-                        }
-                        else
-                        {
+                        } else {
 
                         }
                         p_bar.setVisibility(View.GONE);

@@ -1,4 +1,4 @@
-package mimosale.com.my_posting;
+package mimosale.com.my_posting.product_posting;
 
 
 import android.os.Bundle;
@@ -76,10 +76,10 @@ TextView tv_no_posting;
         p_bar=v.findViewById(R.id.p_bar);
         tv_no_posting=v.findViewById(R.id.tv_no_posting);
 
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 1);
         gridLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
 
-        LinearLayoutManager llm = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
+        LinearLayoutManager llm = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         rv_products.setLayoutManager(llm);
         rv_products.setHasFixedSize(false);
     }//initViewClose
@@ -113,7 +113,7 @@ TextView tv_no_posting;
                                 String user_id = j1.getString("user_id");
                                 String description = j1.getString("description");
                                 String price = j1.getString("price");
-                                String hash_tag = j1.getString("hash_tag");
+                                String hash_tags = j1.getString("hash_tags");
                                 String status1 = j1.getString("status");
                                 String image1 = j1.getString("image1");
                                 String image2 = j1.getString("image2");
@@ -125,12 +125,12 @@ TextView tv_no_posting;
                                      image=j2.getString("image");
                                 }
                                 */
-                                allProductPojoList.add(new AllProductPojo(id,name,shop_id,user_id,description,price,hash_tag,status1,image1,image2));
+                                allProductPojoList.add(new AllProductPojo(id,name,shop_id,user_id,description,price,hash_tags,status1,image1,image2));
                             }
                             if (data.length()>0)
                             {
-                                tv_no_posting.setVisibility(View.VISIBLE);
-                                ProductsAdapter shopSaleAdapter = new ProductsAdapter(allProductPojoList, getActivity());
+                                tv_no_posting.setVisibility(View.GONE);
+                                MyProductPostingAdapter shopSaleAdapter = new MyProductPostingAdapter(allProductPojoList, getActivity(),p_bar);
                                 rv_products.setAdapter(shopSaleAdapter);
 
                             }

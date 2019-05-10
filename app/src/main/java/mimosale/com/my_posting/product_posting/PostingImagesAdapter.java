@@ -1,4 +1,4 @@
-package mimosale.com.my_posting;
+package mimosale.com.my_posting.product_posting;
 
 import android.app.Activity;
 import android.content.Context;
@@ -21,9 +21,7 @@ import java.util.ArrayList;
 import cn.pedant.SweetAlert.SweetAlertDialog;
 import mimosale.com.R;
 import mimosale.com.products.AddProductsActivity;
-import mimosale.com.shop.EventImagesAdapter;
 import mimosale.com.shop.ImageVideoData;
-import mimosale.com.shop.ShopPostingActivity;
 
 public class PostingImagesAdapter extends RecyclerView.Adapter<PostingImagesAdapter.MyViewHolder> {
 
@@ -112,7 +110,7 @@ public class PostingImagesAdapter extends RecyclerView.Adapter<PostingImagesAdap
                                         @Override
                                         public void onClick(SweetAlertDialog sDialog) {
                                             result_list.remove(position);// removes from list
-                                            ((ShopPostingActivity) activity).imageFiles.remove(position);
+                                            ((AddProductsActivity) activity).imageFiles.remove(position);
                                             notifyItemRemoved(position); // updates position
                                             notifyItemRangeChanged(position, result_list.size());
                                             sDialog.dismissWithAnimation();

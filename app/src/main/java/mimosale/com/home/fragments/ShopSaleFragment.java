@@ -18,6 +18,7 @@ import android.widget.Toast;
 import mimosale.com.R;
 
 
+import mimosale.com.helperClass.PrefManager;
 import mimosale.com.home.shop_sale.ShopSaleModel;
 import mimosale.com.network.RestInterface;
 import mimosale.com.network.RetrofitClient;
@@ -90,7 +91,7 @@ public class ShopSaleFragment extends Fragment {
 
             RetrofitClient retrofitClient = new RetrofitClient();
             RestInterface service = retrofitClient.getAPIClient(WebServiceURLs.DOMAIN_NAME);
-            service.getAllShopAndSale(new Callback<JsonElement>() {
+            service.getAllShopAndSale(PrefManager.getInstance(getActivity()).getUserId(),new Callback<JsonElement>() {
                 @Override
                 public void success(JsonElement jsonElement, Response response) {
                     //this method call if webservice success

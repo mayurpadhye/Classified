@@ -41,21 +41,14 @@ import mimosale.com.helperClass.CustomFileUtils;
 import mimosale.com.helperClass.CustomPermissions;
 import mimosale.com.helperClass.CustomUtils;
 import mimosale.com.helperClass.PrefManager;
+import mimosale.com.my_posting.product_posting.PostingImagesAdapter;
 import mimosale.com.network.RestInterface;
 import mimosale.com.network.RetrofitClient;
 import mimosale.com.network.WebServiceURLs;
-import mimosale.com.post.SalePostingActivity;
-import mimosale.com.shop.EventImagesAdapter;
 import mimosale.com.shop.ImageVideoData;
-import mimosale.com.shop.ShopDetailActivity;
-import mimosale.com.shop.ShopPostingActivity;
-import mimosale.com.shop.ShopPreviewActivity;
-import mimosale.com.shop.adapter.ShopImageDetailsAdapter;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
+
 import com.google.gson.JsonElement;
 import com.iceteck.silicompressorr.SiliCompressor;
-import com.viewpagerindicator.CirclePageIndicator;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -86,20 +79,24 @@ public class AddProductsActivity extends AppCompatActivity implements View.OnCli
     ArrayList<ImageVideoData> image_thumbnails;
     Button btn_upload;
     ProgressDialog progressDialog;
-    EventImagesAdapter adapter;
+    PostingImagesAdapter adapter;
     public ArrayList<File> imageFiles;
     RecyclerView rv_images;
     LinearLayoutManager llm_images;
     ProgressBar p_bar;
     String shop_id = "";
+
     Button btn_submit;
+    Intent i;
+    String isUpdate="";
     TextInputLayout tl_hash_tag, tl_product_name, tl_desc, tl_price, tl_discount;
     EditText et_product_name, et_desc, et_price, et_discount, et_hash_tag;
-
+    String product_id="";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_products);
+        i=getIntent();
         initView();
 
 
@@ -163,7 +160,7 @@ public class AddProductsActivity extends AppCompatActivity implements View.OnCli
         llm_images = new LinearLayoutManager(getApplicationContext());
         llm_images.setOrientation(LinearLayoutManager.HORIZONTAL);
         image_thumbnails = new ArrayList<ImageVideoData>();
-        adapter = new EventImagesAdapter(AddProductsActivity.this, AddProductsActivity.this, image_thumbnails, "create");
+        adapter = new PostingImagesAdapter(AddProductsActivity.this, AddProductsActivity.this, image_thumbnails, "create");
         toolbar_title = findViewById(R.id.toolbar_title);
         toolbar_title.setText(getResources().getString(R.string.add_products));
         iv_back = findViewById(R.id.iv_back);
@@ -172,6 +169,30 @@ public class AddProductsActivity extends AppCompatActivity implements View.OnCli
         btn_upload = findViewById(R.id.btn_upload);
         toolbar_title.setText(""+getResources().getString(R.string.product_posting));
         toolbar_title.setTextColor(getResources().getColor(R.color.black));
+
+         isUpdate=i.getStringExtra("isUpdate");
+
+        if (isUpdate.equals("true"))
+        {
+            String shop_id=i.getStringExtra("shop_name");
+            String product_name=i.getStringExtra("product_name");
+            String desc=i.getStringExtra("desc");
+            String price=i.getStringExtra("price");
+            String discount=i.getStringExtra("discount");
+            String hash_tag=i.getStringExtra("hash_tag");
+             product_id=i.getStringExtra("product_id");
+             et_product_name.setText(product_name);
+            et_desc.setText(desc);
+            et_price.setText(price);
+            et_discount.setText(discount);
+            et_hash_tag.setText(hash_tag);
+        }
+
+
+
+
+
+
     }
 
     private void selectImage() {
@@ -332,7 +353,7 @@ public class AddProductsActivity extends AppCompatActivity implements View.OnCli
 
                             //    new ImageCompressAsyncTask(CreateEventActivity.this).execute(images);
                             if (imageFiles.size() <= IMAGE_LIMIT) {
-                                adapter = new EventImagesAdapter(AddProductsActivity.this, AddProductsActivity.this, image_thumbnails, "create");
+                                adapter = new PostingImagesAdapter(AddProductsActivity.this, AddProductsActivity.this, image_thumbnails, "create");
                                 rv_images.setLayoutManager(llm_images);
                                 rv_images.setAdapter(adapter);
                             } else {
@@ -399,7 +420,7 @@ public class AddProductsActivity extends AppCompatActivity implements View.OnCli
                                 image_v.setBitmap(rotatedBitmap);
                                 image_v.setPath(picturePath);
                                 image_thumbnails.add(image_v);
-                                adapter = new EventImagesAdapter(AddProductsActivity.this, AddProductsActivity.this, image_thumbnails, "create");
+                                adapter = new PostingImagesAdapter(AddProductsActivity.this, AddProductsActivity.this, image_thumbnails, "create");
                                 rv_images.setLayoutManager(llm_images);
                                 rv_images.setAdapter(adapter);
                             }
@@ -596,8 +617,90 @@ public class AddProductsActivity extends AppCompatActivity implements View.OnCli
             Toast.makeText(AddProductsActivity.this, ""+getResources().getString(R.string.please_select_atleast_two_images), Toast.LENGTH_SHORT).show();
             return;
         }
-        SaveProductDetails();
 
+        if ( !isUpdate.equals("true"))
+        SaveProductDetails();
+        else
+            UpdateProductDetails();
+
+    }
+
+    public void UpdateProductDetails()
+    {
+        try {
+            String user_id = PrefManager.getInstance(AddProductsActivity.this).getUserId();
+            p_bar.setVisibility(View.VISIBLE);
+
+            MultipartTypedOutput multipartTypedOutput = new MultipartTypedOutput();
+            multipartTypedOutput.addPart("name", new TypedString(et_product_name.getText().toString().trim()));
+            multipartTypedOutput.addPart("shop_id", new TypedString(shop_id));
+            multipartTypedOutput.addPart("description", new TypedString(et_desc.getText().toString().trim()));
+            multipartTypedOutput.addPart("price", new TypedString(et_price.getText().toString().trim()));
+
+            multipartTypedOutput.addPart("user_id", new TypedString(user_id));
+            multipartTypedOutput.addPart("discount", new TypedString(et_discount.getText().toString()));
+            multipartTypedOutput.addPart("product_id", new TypedString(product_id));
+
+
+            if (imageFiles.size() > 0) {
+                for (int i = 0; i < imageFiles.size(); i++) {
+                    multipartTypedOutput.addPart("product_photos[]", new TypedFile("application/octet-stream", new File(imageFiles.get(i).getAbsolutePath())));
+                }
+            } else {
+                multipartTypedOutput.addPart("product_photos", new TypedString(""));
+            }
+
+
+            RetrofitClient retrofitClient = new RetrofitClient();
+            RestInterface service = retrofitClient.getAPIClient(WebServiceURLs.DOMAIN_NAME);
+            service.update_product("Bearer " + PrefManager.getInstance(AddProductsActivity.this).getApiToken(),
+                    multipartTypedOutput, new Callback<JsonElement>() {
+                        @Override
+                        public void success(JsonElement jsonElement, Response response) {
+                            //this method call if webservice success
+                            try {
+                                JSONObject jsonObject = new JSONObject(jsonElement.toString());
+                                String status = jsonObject.getString("status");
+                                p_bar.setVisibility(View.GONE);
+                                if (status.equals("1")) {
+
+
+                                    new SweetAlertDialog(AddProductsActivity.this, SweetAlertDialog.SUCCESS_TYPE)
+                                            .setTitleText(getResources().getString(R.string.success))
+                                            .setContentText(""+getResources().getString(R.string.product_updated))
+                                            .setConfirmText(getResources().getString(R.string.ok))
+                                            .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                                                @Override
+                                                public void onClick(SweetAlertDialog sweetAlertDialog) {
+                                                    finish();
+                                                }
+                                            })
+                                            .show();
+
+                                } else {
+                                    Toast.makeText(AddProductsActivity.this, "" + jsonObject.getString("message"), Toast.LENGTH_SHORT).show();
+
+                                }
+
+
+                            } catch (JSONException | NullPointerException e) {
+                                e.printStackTrace();
+
+                            }
+                        }
+
+                        @Override
+                        public void failure(RetrofitError error) {
+                            p_bar.setVisibility(View.GONE);
+                            Toast.makeText(AddProductsActivity.this, getString(R.string.check_internet), Toast.LENGTH_LONG).show();
+                            Log.i("fdfdfdfdfdf", "" + error.getMessage());
+
+                        }
+                    });
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
     }
 
     public void SaveProductDetails() {

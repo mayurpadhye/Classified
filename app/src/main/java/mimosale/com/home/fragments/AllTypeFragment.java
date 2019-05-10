@@ -114,7 +114,7 @@ List<ShopSaleModel> allShopSaleList=new ArrayList<>();
             p_bar.setVisibility(View.VISIBLE);
             RetrofitClient retrofitClient = new RetrofitClient();
             RestInterface service = retrofitClient.getAPIClient(WebServiceURLs.DOMAIN_NAME);
-            service.getAllShopAndSale(new Callback<JsonElement>() {
+            service.getAllShopAndSale(PrefManager.getInstance(getActivity()).getUserId(),new Callback<JsonElement>() {
                 @Override
                 public void success(JsonElement jsonElement, Response response) {
                     //this method call if webservice success

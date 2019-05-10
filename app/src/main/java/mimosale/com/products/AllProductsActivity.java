@@ -36,7 +36,7 @@ FloatingActionButton fb_add;
         switch (v.getId())
         {
             case R.id.fb_add:
-                startActivity(new Intent(AllProductsActivity.this,AddProductsActivity.class));
+                startActivity(new Intent(AllProductsActivity.this,AddProductsActivity.class).putExtra("isUpdate","false"));
                 break;
             case R.id.iv_back:
                 finish();

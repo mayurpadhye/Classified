@@ -132,13 +132,28 @@ public interface RestInterface {
     @POST(WebServiceURLs.ADD_SHOP_POSTING)
     void addShopPosting(
                          @Header("Authorization") String header,@Body MultipartTypedOutput attachments,  Callback<JsonElement> callback);
+
+
+    @POST(WebServiceURLs.UPDATE_SHOP_POSTING)
+    void update_shop(
+            @Header("Authorization") String header,@Body MultipartTypedOutput attachments,  Callback<JsonElement> callback);
+
+
+
+
+
+
     @POST(WebServiceURLs.ADD_PRODUCT)
     void addProduct(
             @Header("Authorization") String header,@Body MultipartTypedOutput attachments,  Callback<JsonElement> callback);
 
+    @POST(WebServiceURLs.UPDATE_PRODUCTS)
+    void update_product(
+            @Header("Authorization") String header,@Body MultipartTypedOutput attachments,  Callback<JsonElement> callback);
 
-    @GET(WebServiceURLs.ALL_SHOP_AND_SALE)
-    void getAllShopAndSale(  Callback<JsonElement> callback);
+    @FormUrlEncoded
+    @POST(WebServiceURLs.ALL_SHOP_AND_SALE)
+    void getAllShopAndSale(  @Field("user_id") String user_id, Callback<JsonElement> callback);
 
     @GET(WebServiceURLs.GET_ALL_PRODUCTS)
     void getAllProducts(  Callback<JsonElement> callback);
@@ -173,6 +188,41 @@ public interface RestInterface {
     @FormUrlEncoded
     @POST(WebServiceURLs.FOLLOW_SHOP)
     void followShop(@Field("status") String status,@Field("user_id") String user_id,@Field("shop_id") String shop_id,@Header("Authorization") String header,  Callback<JsonElement> callback);
+
+    @FormUrlEncoded
+    @POST(WebServiceURLs.DELETE_USER_PRODUCTS)
+    void delete_posting(@Field("user_id") String user_id,@Field("product_id") String product_id,@Header("Authorization") String header,  Callback<JsonElement> callback);
+
+    @FormUrlEncoded
+    @POST(WebServiceURLs.DELETE_USER_SHOP)
+    void delete_shop_posting(@Field("user_id") String user_id,@Field("shop_id") String product_id,@Header("Authorization") String header,  Callback<JsonElement> callback);
+
+    @FormUrlEncoded
+    @POST(WebServiceURLs.DELETE_SALE)
+    void delete_sale(@Field("user_id") String user_id,@Field("sale_id") String sale_id,@Header("Authorization") String header,  Callback<JsonElement> callback);
+
+
+    @FormUrlEncoded
+    @POST(WebServiceURLs.UPDATE_SALE)
+    void updateSalePosting(@Field("title") String title,
+                           @Field("shop_id") String shop_id, @Field("product_id") String product_id,
+                           @Field("min_discount") String min_discount,
+                           @Field("max_discount") String max_discount,
+                           @Field("hash_tags") String hash_tags,
+                           @Field("description") String description,
+                           @Field("web_url") String web_url,
+                           @Field("user_id") String user_id,@Header("Authorization") String header,  Callback<JsonElement> callback);
+
+    @FormUrlEncoded
+    @POST(WebServiceURLs.UPDATE_SALE)
+    void like_shop(@Field("title") String title,
+                           @Field("shop_id") String shop_id, @Field("product_id") String product_id,
+                           @Field("min_discount") String min_discount,
+                           @Field("max_discount") String max_discount,
+                           @Field("hash_tags") String hash_tags,
+                           @Field("description") String description,
+                           @Field("web_url") String web_url,
+                           @Field("user_id") String user_id,@Header("Authorization") String header,  Callback<JsonElement> callback);
 
 
 }

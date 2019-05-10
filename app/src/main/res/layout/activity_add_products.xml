@@ -52,7 +52,7 @@
                     android:id="@+id/et_product_name"
                     android:textSize="14dp"
                     android:padding="10dp"
-
+                    android:importantForAutofill="noExcludeDescendants"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/product_name"
@@ -97,6 +97,7 @@
                     android:id="@+id/et_desc"
                     android:textSize="14dp"
                     android:padding="10dp"
+                    android:importantForAutofill="noExcludeDescendants"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/short_description"
@@ -115,6 +116,7 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/original_price"
                     android:padding="10dp"
+                    android:importantForAutofill="noExcludeDescendants"
                     android:inputType="number"
 
                     android:textSize="14dp" />
@@ -130,6 +132,7 @@
                     android:id="@+id/et_discount"
                     android:textSize="14dp"
                     android:padding="10dp"
+                    android:importantForAutofill="noExcludeDescendants"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="number"
@@ -146,6 +149,7 @@
                     android:id="@+id/et_hash_tag"
                     android:textSize="14dp"
                     android:padding="10dp"
+                    android:importantForAutofill="noExcludeDescendants"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/hash_tag"

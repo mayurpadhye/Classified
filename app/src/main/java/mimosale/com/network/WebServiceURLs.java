@@ -43,6 +43,12 @@ public class  WebServiceURLs {
     public static final String CHANGE_PASSWORD="/changePassword";
     public static final String FOLLOWING_SHOPS="/followedShopList";
     public static final String FOLLOW_SHOP="/followShop";
+    public static final String DELETE_USER_PRODUCTS="/deleteUserProduct";
+    public static final String DELETE_USER_SHOP="/deleteUserShop";
+    public static final String UPDATE_SHOP_POSTING="/updateUserShop";
+    public static final String UPDATE_PRODUCTS="/updateUserProduct";
+    public static final String DELETE_SALE="/deleteSale";
+    public static final String UPDATE_SALE="/deleteSale";
 
 
 

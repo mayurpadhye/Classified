@@ -89,6 +89,12 @@ public class FollowingShopAdapter extends RecyclerView.Adapter<FollowingShopAdap
                  followShop(items.getShop_id(),position);
              }
          });
+         holder.cv_main.setOnClickListener(new View.OnClickListener() {
+             @Override
+             public void onClick(View v) {
+                 mctx.startActivity(new Intent(mctx,ShopDetailActivity.class).putExtra("shop_id",items.getShop_id()));
+             }
+         });
 
 
     }
@@ -103,6 +109,7 @@ public class FollowingShopAdapter extends RecyclerView.Adapter<FollowingShopAdap
         TextView tv_shop_name;
       CircleImageView cv_shop_image;
       Button btn_unfollow;
+      CardView cv_main;
 
         public MyViewHolder(View view) {
             super(view);
@@ -110,6 +117,7 @@ public class FollowingShopAdapter extends RecyclerView.Adapter<FollowingShopAdap
             tv_shop_name = (TextView) view.findViewById(R.id.tv_shop_name);
             cv_shop_image = (CircleImageView) view.findViewById(R.id.cv_shop_image);
             btn_unfollow = (Button) view.findViewById(R.id.btn_unfollow);
+            cv_main = (CardView) view.findViewById(R.id.cv_main);
 
 
             //   shimmer.start(shimmer_premium);

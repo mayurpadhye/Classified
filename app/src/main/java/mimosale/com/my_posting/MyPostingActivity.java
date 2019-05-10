@@ -20,10 +20,10 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 
 import mimosale.com.R;
-import mimosale.com.home.fragments.AllTypeFragment;
 import mimosale.com.home.fragments.EnhancedWrapContentViewPager;
-import mimosale.com.home.fragments.ProductsFragment;
-import mimosale.com.home.fragments.ShopSaleFragment;
+import mimosale.com.my_posting.product_posting.MyProductPostingFragment;
+import mimosale.com.my_posting.sale_posting.MySalePostingFragment;
+import mimosale.com.my_posting.shop_posting.MyShopPostingFragment;
 import mimosale.com.post.MyPostingAdapter;
 import mimosale.com.post.SalePostingActivity;
 import mimosale.com.preferences.MyPreferencePojo;
@@ -97,15 +97,15 @@ List<MyPreferencePojo>myPreferencePojoList=new ArrayList<>();
                 showSelectPostingDailog();
                 break;
             case R.id.rb_shop_posting:
-                startActivity(new Intent(MyPostingActivity.this,ShopPostingActivity.class));
+                startActivity(new Intent(MyPostingActivity.this, ShopPostingActivity.class).putExtra("isUpdate","create_shop"));
                 dialog.dismiss();
                 break;
             case R.id.rb_sale_posting:
-                startActivity(new Intent(MyPostingActivity.this, SalePostingActivity.class));
+                startActivity(new Intent(MyPostingActivity.this, SalePostingActivity.class).putExtra("isUpdate","false"));
                 dialog.dismiss();
                 break;
             case R.id.rb_product_posting:
-                startActivity(new Intent(MyPostingActivity.this,AddProductsActivity.class));
+                startActivity(new Intent(MyPostingActivity.this,AddProductsActivity.class).putExtra("isUpdate","false"));
                 dialog.dismiss();
                 break;
         }

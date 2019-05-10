@@ -59,6 +59,7 @@ import com.android.volley.Request;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.StringRequest;
+
 import mimosale.com.R;
 import mimosale.com.helperClass.AppController;
 import mimosale.com.helperClass.CustomFileUtils;
@@ -72,6 +73,7 @@ import mimosale.com.network.WebServiceURLs;
 import mimosale.com.post.SalePostingActivity;
 import mimosale.com.preferences.AddNewPrefAdapter;
 import mimosale.com.preferences.AllPrefPojo;
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -121,8 +123,7 @@ import static mimosale.com.helperClass.CustomUtils.IMAGE_LIMIT;
 import static mimosale.com.helperClass.CustomUtils.VIDEO_LIMIT;
 import static mimosale.com.helperClass.CustomUtils.showToast;
 
-public class ShopPostingActivity extends AppCompatActivity implements View.OnClickListener
-       {
+public class ShopPostingActivity extends AppCompatActivity implements View.OnClickListener {
     public ArrayList<File> imageFiles;
     Button btn_upload;
     RecyclerView rv_images;
@@ -136,7 +137,7 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
     boolean ll_pricing_visible = false;
     boolean ll_address_visible = false;
     boolean ll_other_visible = false;
-TextView tv_url;
+    TextView tv_url;
     ProgressDialog progressDialog;
     LinearLayout ll_discount;
     ArrayList<ImageVideoData> image_thumbnails, video_thumbnails;
@@ -152,21 +153,23 @@ TextView tv_url;
     List<String> allPrefIds = new ArrayList<>();
     String pref_id = "";
     Button btn_save;
-    String lattitude="",langitude="";
-    EditText et_start_date, et_end_date,et_city,et_state,et_country;
+    String isUpdate = "";
+    String lattitude = "", langitude = "";
+    EditText et_start_date, et_end_date, et_city, et_state, et_country;
     TextView tv_other_details, tv_address_details, tv_pricing_details, tv_shop_details;
     TextInputLayout tl_shop_name, tl_shop_desc, tl_min_discount, tl_max_discount, tl_min_price, tl_max_price, tl_pincode, tl_city, tl_address_line1;
     TextInputLayout tl_address_line2, tl_phone_no, tl_hash_tag, tl_url, tl_end_date, tl_start_date;
     EditText et_shop_name, et_shop_desc, et_min_discount, et_max_discount, et_min_price, et_max_price, et_pincode,
             et_address_line1, et_address_line2, et_phone, et_hash_tag, et_url;
-
+    String shop_id="";
 
     private static final LatLngBounds BOUNDS_MOUNTAIN_VIEW = new LatLngBounds(
             new LatLng(37.398160, -122.180831), new LatLng(37.430610, -121.972090));
 
     final Calendar myCalendar = Calendar.getInstance();
-            ProgressDialog pDialog;
-           @Override
+    ProgressDialog pDialog;
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shop_posting);
@@ -198,8 +201,8 @@ TextView tv_url;
 
             public void onTextChanged(CharSequence s, int start,
                                       int before, int count) {
-                if (s.length()==7 || s.length()==8)
-                getDataByPincode(s.toString());
+                if (s.length() == 7 || s.length() == 8)
+                    getDataByPincode(s.toString());
                 else {
                     et_city.setText("");
                     et_country.setText("");
@@ -292,185 +295,171 @@ TextView tv_url;
         });
 
 
-
-
     }//onCreateClose
 
 
-           public void getDataByPincode(String pincode)
-           {
-               String  tag_string_req = "string_req";
-               URL url1 = null;
-               String url = "https://maps.googleapis.com/maps/api/geocode/json?address='"+pincode+"'&key=AIzaSyC6in7wfj-jFmh4rINHmZ8Pu13IfqNvUYw&region=JP";
+    public void getDataByPincode(String pincode) {
+        String tag_string_req = "string_req";
+        URL url1 = null;
+        String url = "https://maps.googleapis.com/maps/api/geocode/json?address='" + pincode + "'&key=AIzaSyC6in7wfj-jFmh4rINHmZ8Pu13IfqNvUYw&region=JP";
 
-               final String encodedURL;
-               try {
-                   encodedURL = URLEncoder.encode(url, "UTF-8");
-                    url1 = new URL(encodedURL);
-               } catch (UnsupportedEncodingException e) {
-                   e.printStackTrace();
-               } catch (MalformedURLException e) {
-                   e.printStackTrace();
-               }
-
+        final String encodedURL;
+        try {
+            encodedURL = URLEncoder.encode(url, "UTF-8");
+            url1 = new URL(encodedURL);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
 
 
-               pDialog.show();
-               getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                       WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-               StringRequest strReq = new StringRequest(Request.Method.GET,
-                       url, new com.android.volley.Response.Listener<String>() {
-                   @Override
-                   public void onResponse(String response) {
-                       try {
-                           JSONObject jsonObject=new JSONObject(response);
+        pDialog.show();
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+        StringRequest strReq = new StringRequest(Request.Method.GET,
+                url, new com.android.volley.Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
 
-                           JSONArray results=jsonObject.getJSONArray("results");
-                           for (int k=0;k<results.length();k++)
-                           {
-                               JSONObject j1=results.getJSONObject(k);
-                               JSONObject geometry=j1.getJSONObject("geometry");
-                               JSONObject location=geometry.getJSONObject("location");
-                               String lat=location.getString("lat");
-                               String lng=location.getString("lng");
+                    JSONArray results = jsonObject.getJSONArray("results");
+                    for (int k = 0; k < results.length(); k++) {
+                        JSONObject j1 = results.getJSONObject(k);
+                        JSONObject geometry = j1.getJSONObject("geometry");
+                        JSONObject location = geometry.getJSONObject("location");
+                        String lat = location.getString("lat");
+                        String lng = location.getString("lng");
 
-                               Toast.makeText(context, ""+lat, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "" + lat, Toast.LENGTH_SHORT).show();
 
-                               getAddress(lat,lng);
-                           }
-
-
-                       } catch (JSONException e) {
-                           pDialog.dismiss();
-                           getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-                           e.printStackTrace();
-                       }
+                        getAddress(lat, lng);
+                    }
 
 
-                   }
+                } catch (JSONException e) {
+                    pDialog.dismiss();
+                    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                    e.printStackTrace();
+                }
 
-               }, new com.android.volley.Response.ErrorListener() {
-                   @Override
-                   public void onErrorResponse(VolleyError error) {
-                       pDialog.dismiss();
-                       getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-                   }
 
-               });
+            }
+
+        }, new com.android.volley.Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                pDialog.dismiss();
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+            }
+
+        });
 
 // Adding request to request queue
-               AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
-           }
+        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
+    }
 
 
-           public void getAddress(String lat,String lng)
-           {
-               lattitude=lat;
-               langitude=lng;
-               String  tag_string_req = "string_req";
-               URL url1 = null;
-               String url = "https://maps.googleapis.com/maps/api/geocode/json?latlng="+lat+","+lng+"&key=AIzaSyC6in7wfj-jFmh4rINHmZ8Pu13IfqNvUYw";
-Log.i("ttdtstd",""+url);
-               final String encodedURL;
-               try {
-                   encodedURL = URLEncoder.encode(url, "UTF-8");
-                   url1 = new URL(encodedURL);
-               } catch (UnsupportedEncodingException e) {
-                   e.printStackTrace();
-               } catch (MalformedURLException e) {
-                   e.printStackTrace();
-               }
+    public void getAddress(String lat, String lng) {
+        lattitude = lat;
+        langitude = lng;
+        String tag_string_req = "string_req";
+        URL url1 = null;
+        String url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lng + "&key=AIzaSyC6in7wfj-jFmh4rINHmZ8Pu13IfqNvUYw";
+        Log.i("ttdtstd", "" + url);
+        final String encodedURL;
+        try {
+            encodedURL = URLEncoder.encode(url, "UTF-8");
+            url1 = new URL(encodedURL);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
 
 
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+        StringRequest strReq = new StringRequest(Request.Method.GET,
+                url, new com.android.volley.Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    pDialog.dismiss();
+                    JSONObject jsonObject = new JSONObject(response);
 
-               getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                       WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-               StringRequest strReq = new StringRequest(Request.Method.GET,
-                       url, new com.android.volley.Response.Listener<String>() {
-                   @Override
-                   public void onResponse(String response) {
-                       try {
-                           pDialog.dismiss();
-                           JSONObject jsonObject=new JSONObject(response);
+                    JSONArray results = jsonObject.getJSONArray("results");
+                    for (int k = 0; k < results.length(); k++) {
+                        JSONObject j1 = results.getJSONObject(k);
+                        JSONArray address_components = j1.getJSONArray("address_components");
+                        for (int j = 0; j < address_components.length(); j++) {
+                            JSONObject j2 = address_components.getJSONObject(j);
+                            JSONArray types = j2.getJSONArray("types");
+                            for (int i = 0; i < types.length(); i++) {
+                                if (types.get(i).equals("locality")) {
+                                    String long_name = j2.getString("long_name");
 
-                           JSONArray results=jsonObject.getJSONArray("results");
-                           for (int k=0;k<results.length();k++)
-                           {
-                               JSONObject j1=results.getJSONObject(k);
-                               JSONArray address_components=j1.getJSONArray("address_components");
-                               for (int j=0;j<address_components.length();j++)
-                               {
-                                   JSONObject j2=address_components.getJSONObject(j);
-                                   JSONArray types=j2.getJSONArray("types");
-                                   for (int i = 0; i < types.length(); i++) {
-                                       if (types.get(i).equals("locality")){
-                                           String long_name=j2.getString("long_name");
+                                    et_city.setText(long_name);
+                                }
+                                if (types.get(i).equals("administrative_area_level_1")) {
+                                    String long_name = j2.getString("long_name");
 
-                                           et_city.setText(long_name);
-                                       }
-                                       if (types.get(i).equals("administrative_area_level_1"))
-                                       {
-                                           String long_name=j2.getString("long_name");
+                                    et_state.setText(long_name);
+                                }
+                                if (types.get(i).equals("country")) {
+                                    String long_name = j2.getString("long_name");
 
-                                           et_state.setText(long_name);
-                                       }
-                                       if (types.get(i).equals("country"))
-                                       {
-                                           String long_name=j2.getString("long_name");
+                                    et_country.setText(long_name);
+                                }
+                                if (types.get(i).equals("sublocality_level_4")) {
+                                    String long_name = j2.getString("long_name");
+                                    et_address_line1.setText(long_name);
+                                }
 
-                                           et_country.setText(long_name);
-                                       }
-                                       if (types.get(i).equals("sublocality_level_4"))
-                                       {
-                                           String long_name=j2.getString("long_name");
-                                           et_address_line1.setText(long_name);
-                                       }
-
-                                       if (types.get(i).equals("sublocality_level_2"))
-                                       {
-                                           String long_name=j2.getString("long_name");
-                                           et_address_line1.setText(long_name);
-                                       }
-                                       if (types.get(i).equals("locality"))
-                                       {
-                                           String long_name=j2.getString("long_name");
-                                           et_address_line2.setText(long_name);
-                                       }
-                                   }
+                                if (types.get(i).equals("sublocality_level_2")) {
+                                    String long_name = j2.getString("long_name");
+                                    et_address_line1.setText(long_name);
+                                }
+                                if (types.get(i).equals("locality")) {
+                                    String long_name = j2.getString("long_name");
+                                    et_address_line2.setText(long_name);
+                                }
+                            }
 
 
-                               }
+                        }
 
-                               getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
-                               //getAddress(lat,lng);
-                           }
-
-
-                       } catch (JSONException e) {
-                           pDialog.dismiss();
-                           getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-                           e.printStackTrace();
-                       }
+                        //getAddress(lat,lng);
+                    }
 
 
-                   }
+                } catch (JSONException e) {
+                    pDialog.dismiss();
+                    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                    e.printStackTrace();
+                }
 
-               }, new com.android.volley.Response.ErrorListener() {
-                   @Override
-                   public void onErrorResponse(VolleyError error) {
-                       pDialog.dismiss();
-                       getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-                   }
 
-               });
+            }
+
+        }, new com.android.volley.Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                pDialog.dismiss();
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+            }
+
+        });
 
 // Adding request to request queue
-               AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
-           }
+        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
+    }
 
 
-    public void slideUp(View view){
+    public void slideUp(View view) {
         view.setVisibility(View.GONE);
         TranslateAnimation animate = new TranslateAnimation(
                 0,                 // fromXDelta
@@ -483,13 +472,13 @@ Log.i("ttdtstd",""+url);
     }
 
     // slide the view from its current position to below itself
-    public void slideDown(View view){
+    public void slideDown(View view) {
 
         TranslateAnimation animate = new TranslateAnimation(
                 0,                 // fromXDelta
                 0,                 // toXDelta
                 0,                 // fromYDelta
-               0); // toYDelta
+                0); // toYDelta
         animate.setDuration(500);
         animate.setFillAfter(true);
         view.startAnimation(animate);
@@ -570,14 +559,17 @@ Log.i("ttdtstd",""+url);
     }//
 
     public void initView() {
+        Intent i = getIntent();
+        isUpdate = i.getStringExtra("isUpdate");
 
-         pDialog = new ProgressDialog(this);
+
+        pDialog = new ProgressDialog(this);
         pDialog.setMessage("Loading...");
 
         mAutocompleteTextView = (AutoCompleteTextView) findViewById(R.id
                 .autoCompleteTextView);
         mAutocompleteTextView.setThreshold(3);
-        tv_url=findViewById(R.id.tv_url);
+        tv_url = findViewById(R.id.tv_url);
         ll_shop_details = findViewById(R.id.ll_shop_details);
         et_state = findViewById(R.id.et_state);
         et_country = findViewById(R.id.et_country);
@@ -684,6 +676,64 @@ Log.i("ttdtstd",""+url);
             }
         });
 
+        if (isUpdate.equals("update_shop")) {
+            try {
+
+                String shop_name = i.getStringExtra("shop_name");
+
+                String shop_desc = i.getStringExtra("shop_desc");
+                String shop_category = i.getStringExtra("shop_category");
+                String min_discount = i.getStringExtra("min_discount");
+                String max_discount = i.getStringExtra("max_discount");
+                String start_date = i.getStringExtra("start_date");
+                String end_date = i.getStringExtra("end_date");
+                String min_price = i.getStringExtra("min_price");
+                String max_price = i.getStringExtra("max_price");
+                String pincode = i.getStringExtra("pincode");
+                String city = i.getStringExtra("city");
+                String state = i.getStringExtra("state");
+                String country = i.getStringExtra("country");
+                String address_line_1 = i.getStringExtra("address_line_1");
+                String address_line_2 = i.getStringExtra("address_line_2");
+                String phone_number = i.getStringExtra("phone_number");
+                String hash_tag = i.getStringExtra("hash_tag");
+                String web_url = i.getStringExtra("web_url");
+                shop_id = i.getStringExtra("shop_id");
+
+                et_shop_name.setText(shop_name);
+                et_shop_desc.setText(shop_desc);
+
+                if (!min_discount.equals("null"))
+                { et_min_discount.setText(min_discount);}
+
+                if (!max_discount.equals("null"))
+                { et_max_discount.setText(max_discount);}
+
+                if (!max_price.equals("null"))
+                {  et_max_price.setText(max_price);}
+
+                if (!min_price.equals("null"))
+                { et_min_price.setText(min_price);}
+
+
+
+                et_start_date.setText(start_date);
+                et_end_date.setText(end_date);
+                et_pincode.setText(pincode);
+                et_city.setText(city);
+                et_address_line1.setText(address_line_1);
+                et_address_line2.setText(address_line_2);
+                et_phone.setText(phone_number);
+                et_hash_tag.setText(hash_tag);
+                et_url.setText(web_url);
+                et_state.setText(state);
+                et_country.setText(country);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+
     }//initViewclose
 
 
@@ -699,7 +749,7 @@ Log.i("ttdtstd",""+url);
             tl_shop_name.setError(null);
         }
 
-        if (et_shop_desc.getText().toString().trim().length() ==0) {
+        if (et_shop_desc.getText().toString().trim().length() == 0) {
             if (!ll_shop_visible)
                 slideDown(ll_shop_details);
             et_shop_desc.requestFocus();
@@ -760,13 +810,11 @@ Log.i("ttdtstd",""+url);
             tl_pincode.setError(null);
         }
 
-        if (et_city.getText().toString().trim().length()==0)
-        {
+        if (et_city.getText().toString().trim().length() == 0) {
             et_city.requestFocus();
             tl_city.setError(getResources().getString(R.string.enter_city));
             return;
-        }
-        else {
+        } else {
             tl_city.setError(null);
         }
 
@@ -819,7 +867,7 @@ Log.i("ttdtstd",""+url);
         if (imageFiles.size() <= 1) {
             if (!ll_shop_visible)
                 slideDown(ll_shop_details);
-            Toast.makeText(context, ""+getResources().getString(R.string.please_select_atleast_two_images), Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "" + getResources().getString(R.string.please_select_atleast_two_images), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -827,17 +875,17 @@ Log.i("ttdtstd",""+url);
             if (!ll_pricing_visible)
                 slideDown(ll_pricing);
             if (et_min_discount.getText().toString().trim().length() > et_max_discount.getText().toString().trim().length()) {
-                tl_min_discount.setError(""+getResources().getString(R.string.min_discount_error));
+                tl_min_discount.setError("" + getResources().getString(R.string.min_discount_error));
                 return;
             } else if (et_max_discount.getText().toString().trim().length() < et_min_discount.getText().toString().trim().length()) {
-                tl_max_discount.setError(""+getResources().getString(R.string.max_dis_error));
+                tl_max_discount.setError("" + getResources().getString(R.string.max_dis_error));
                 return;
             }
             if (et_start_date.getText().toString().trim().length() != 0 || et_end_date.getText().toString().trim().length() != 0) {
                 if (!ll_pricing_visible)
                     slideDown(ll_pricing);
                 if (et_start_date.getText().toString().trim().length() == 0) {
-                    tl_start_date.setError(""+getResources().getString(R.string.enter_start_date));
+                    tl_start_date.setError("" + getResources().getString(R.string.enter_start_date));
                     return;
                 } else if (et_end_date.getText().toString().trim().length() == 0) {
                     tl_end_date.setError(getResources().getString(R.string.enter_end_date));
@@ -854,42 +902,48 @@ Log.i("ttdtstd",""+url);
 
         }
 
-if (type.equals("save"))
-{
-    addShopDetails();
-}
-else
-{
-    Intent i=new Intent(ShopPostingActivity.this,ShopPreviewActivity.class);
-    i.putExtra("shop_name",et_shop_name.getText().toString());
-    JsonArray jsonElements = (JsonArray) new Gson().toJsonTree(image_thumbnails);
-    i.putExtra("shop_images",jsonElements.toString());
-    i.putExtra("shop_desc",et_shop_desc.getText().toString());
-    i.putExtra("shop_category",sp_category.getSelectedItem().toString());
-    i.putExtra("min_discount",et_min_discount.getText().toString());
-    i.putExtra("max_discount",et_max_discount.getText().toString());
-    i.putExtra("start_date",et_start_date.getText().toString());
-    i.putExtra("end_date",et_end_date.getText().toString());
-    i.putExtra("min_price",et_min_price.getText().toString());
-    i.putExtra("max_price",et_max_price.getText().toString());
-    i.putExtra("pincode",et_pincode.getText().toString());
-    i.putExtra("city",et_city.getText().toString());
-    i.putExtra("address_line_1",et_address_line1.getText().toString());
-    i.putExtra("address_line_2",et_address_line2.getText().toString());
-    i.putExtra("phone_number",et_phone.getText().toString());
-    i.putExtra("hash_tag",et_hash_tag.getText().toString());
-    i.putExtra("web_url",et_url.getText().toString());
-    i.putExtra("pref_id",pref_id);
-    i.putExtra("state",et_state.getText().toString());
-    i.putExtra("country",et_country.getText().toString());
-    i.putExtra("lat",lattitude);
-    i.putExtra("lan",langitude);
-    JsonArray jsonElements1 = (JsonArray) new Gson().toJsonTree(imageFiles);
-    i.putExtra("image_thumbnail",jsonElements1.toString());
+        if (type.equals("save")) {
+
+            if (isUpdate.equals("update_shop"))
+            {
+                updateShopDetails();
+
+            }
+            else{
+                addShopDetails();
+            }
+
+        } else {
+            Intent i = new Intent(ShopPostingActivity.this, ShopPreviewActivity.class);
+            i.putExtra("shop_name", et_shop_name.getText().toString());
+            JsonArray jsonElements = (JsonArray) new Gson().toJsonTree(image_thumbnails);
+            i.putExtra("shop_images", jsonElements.toString());
+            i.putExtra("shop_desc", et_shop_desc.getText().toString());
+            i.putExtra("shop_category", sp_category.getSelectedItem().toString());
+            i.putExtra("min_discount", et_min_discount.getText().toString());
+            i.putExtra("max_discount", et_max_discount.getText().toString());
+            i.putExtra("start_date", et_start_date.getText().toString());
+            i.putExtra("end_date", et_end_date.getText().toString());
+            i.putExtra("min_price", et_min_price.getText().toString());
+            i.putExtra("max_price", et_max_price.getText().toString());
+            i.putExtra("pincode", et_pincode.getText().toString());
+            i.putExtra("city", et_city.getText().toString());
+            i.putExtra("address_line_1", et_address_line1.getText().toString());
+            i.putExtra("address_line_2", et_address_line2.getText().toString());
+            i.putExtra("phone_number", et_phone.getText().toString());
+            i.putExtra("hash_tag", et_hash_tag.getText().toString());
+            i.putExtra("web_url", et_url.getText().toString());
+            i.putExtra("pref_id", pref_id);
+            i.putExtra("state", et_state.getText().toString());
+            i.putExtra("country", et_country.getText().toString());
+            i.putExtra("lat", lattitude);
+            i.putExtra("lan", langitude);
+            JsonArray jsonElements1 = (JsonArray) new Gson().toJsonTree(imageFiles);
+            i.putExtra("image_thumbnail", jsonElements1.toString());
 
 
-    startActivity(i);
-}
+            startActivity(i);
+        }
 
 
     }
@@ -910,6 +964,99 @@ else
 
             return false;
         }
+    }
+
+    public void updateShopDetails()
+    {
+        try {
+            PrefManager.getInstance(context).getUserId();
+            p_bar.setVisibility(View.VISIBLE);
+
+            MultipartTypedOutput multipartTypedOutput = new MultipartTypedOutput();
+            multipartTypedOutput.addPart("name", new TypedString(et_shop_name.getText().toString().trim()));
+            multipartTypedOutput.addPart("preference_id", new TypedString(pref_id));
+            multipartTypedOutput.addPart("address_line1", new TypedString(et_address_line1.getText().toString().trim()));
+            multipartTypedOutput.addPart("address_line2", new TypedString(et_address_line2.getText().toString().trim()));
+            multipartTypedOutput.addPart("city", new TypedString(et_city.getText().toString()));
+            multipartTypedOutput.addPart("state", new TypedString("AM"));
+            multipartTypedOutput.addPart("country", new TypedString("AM"));
+            multipartTypedOutput.addPart("pincode", new TypedString(et_pincode.getText().toString()));
+            multipartTypedOutput.addPart("lat", new TypedString("22.22"));
+            multipartTypedOutput.addPart("lon", new TypedString("20.22"));
+            multipartTypedOutput.addPart("low_price", new TypedString(et_min_price.getText().toString()));
+            multipartTypedOutput.addPart("high_price", new TypedString(et_max_price.getText().toString()));
+            multipartTypedOutput.addPart("min_discount", new TypedString(et_min_discount.getText().toString()));
+            multipartTypedOutput.addPart("max_discount", new TypedString(et_max_discount.getText().toString()));
+            multipartTypedOutput.addPart("phone", new TypedString(et_phone.getText().toString()));
+            multipartTypedOutput.addPart("hash_tags", new TypedString(et_hash_tag.getText().toString()));
+            multipartTypedOutput.addPart("description", new TypedString(et_shop_desc.getText().toString()));
+            multipartTypedOutput.addPart("web_url", new TypedString(tv_url.getText().toString() + "" + et_url.getText().toString()));
+            multipartTypedOutput.addPart("status", new TypedString("1"));
+            multipartTypedOutput.addPart("user_id", new TypedString(PrefManager.getInstance(context).getUserId()));
+            multipartTypedOutput.addPart("shop_id", new TypedString(shop_id));
+
+
+            if (imageFiles.size() > 0) {
+                for (int i = 0; i < imageFiles.size(); i++) {
+                    multipartTypedOutput.addPart("shop_photos[]", new TypedFile("application/octet-stream", new File(imageFiles.get(i).getAbsolutePath())));
+                }
+            } else {
+                multipartTypedOutput.addPart("shop_photos", new TypedString(""));
+            }
+
+
+            RetrofitClient retrofitClient = new RetrofitClient();
+            RestInterface service = retrofitClient.getAPIClient(WebServiceURLs.DOMAIN_NAME);
+            service.update_shop("Bearer " + PrefManager.getInstance(context).getApiToken(),
+                    multipartTypedOutput, new Callback<JsonElement>() {
+                        @Override
+                        public void success(JsonElement jsonElement, Response response) {
+                            //this method call if webservice success
+                            try {
+                                JSONObject jsonObject = new JSONObject(jsonElement.toString());
+                                String status = jsonObject.getString("status");
+
+                                if (status.equals("1")) {
+
+                                    Toast.makeText(context, "Shop Successfully Updated" , Toast.LENGTH_SHORT).show();
+
+                                    new SweetAlertDialog(context, SweetAlertDialog.SUCCESS_TYPE)
+                                            .setTitleText(getResources().getString(R.string.success))
+                                            .setContentText(getResources().getString(R.string.shop_posting_success))
+                                            .setConfirmText(getResources().getString(R.string.ok))
+                                            .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                                                @Override
+                                                public void onClick(SweetAlertDialog sweetAlertDialog) {
+                                                    finish();
+                                                }
+                                            })
+                                            .show();
+
+                                } else {
+                                    Toast.makeText(context, "Unable to update Shop", Toast.LENGTH_SHORT).show();
+
+                                }
+
+                                p_bar.setVisibility(View.GONE);
+                            } catch (JSONException | NullPointerException e) {
+                                e.printStackTrace();
+
+                            }
+                        }
+
+                        @Override
+                        public void failure(RetrofitError error) {
+                            p_bar.setVisibility(View.GONE);
+                            Toast.makeText(context, getString(R.string.check_internet), Toast.LENGTH_LONG).show();
+                            Log.i("fdfdfdfdfdf", "" + error.getMessage());
+
+                        }
+                    });
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
+
     }
 
     public void addShopDetails() {
@@ -935,7 +1082,7 @@ else
             multipartTypedOutput.addPart("phone", new TypedString(et_phone.getText().toString()));
             multipartTypedOutput.addPart("hash_tags", new TypedString(et_hash_tag.getText().toString()));
             multipartTypedOutput.addPart("description", new TypedString(et_shop_desc.getText().toString()));
-            multipartTypedOutput.addPart("web_url", new TypedString(tv_url.getText().toString()+""+et_url.getText().toString()));
+            multipartTypedOutput.addPart("web_url", new TypedString(tv_url.getText().toString() + "" + et_url.getText().toString()));
             multipartTypedOutput.addPart("status", new TypedString("1"));
             multipartTypedOutput.addPart("user_id", new TypedString(PrefManager.getInstance(context).getUserId()));
 
@@ -1054,7 +1201,7 @@ else
     }
 
     private void selectImage() {
-        final String[] items = new String[]{ getString(R.string.camera), getString(R.string.gallery)};
+        final String[] items = new String[]{getString(R.string.camera), getString(R.string.gallery)};
 
         AlertDialog.Builder ad = new AlertDialog.Builder(this);
         ad.setItems(items, new DialogInterface.OnClickListener() {
@@ -1064,7 +1211,9 @@ else
                 switch (i) {
                     case 0:
                         boolean result_camera = CustomPermissions.checkCameraPermission(ShopPostingActivity.this);
-                        if (result_camera) {cameraImageIntent();}
+                        if (result_camera) {
+                            cameraImageIntent();
+                        }
                         break;
 
                     case 1:
@@ -1092,7 +1241,7 @@ else
             intent.setType("image/*");
             startActivityForResult(Intent.createChooser(intent, getString(R.string.select)), CustomPermissions.MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
 
-        } catch ( ActivityNotFoundException e ) {
+        } catch (ActivityNotFoundException e) {
             e.printStackTrace();
 
             //Open the generic Apps page:

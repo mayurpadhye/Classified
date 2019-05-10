@@ -93,7 +93,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:hint="@string/shop_name"
-
+                                android:importantForAutofill="noExcludeDescendants"
                                 android:textSize="14dp" />
 
                         </android.support.design.widget.TextInputLayout>
@@ -148,6 +148,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:hint="@string/short_description"
+                                android:importantForAutofill="noExcludeDescendants"
                                 android:textSize="14dp" />
 
                         </android.support.design.widget.TextInputLayout>
@@ -266,6 +267,7 @@
                                         android:layout_height="wrap_content"
                                         android:hint="@string/min_discount"
                                         android:inputType="number"
+                                        android:importantForAutofill="noExcludeDescendants"
                                         android:textSize="14dp" />
 
                                 </android.support.design.widget.TextInputLayout>
@@ -281,6 +283,7 @@
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:hint="@string/max_discount"
+                                        android:importantForAutofill="noExcludeDescendants"
                                         android:inputType="number"
                                         android:textSize="14dp" />
 
@@ -305,6 +308,7 @@
                                         android:clickable="true"
                                         android:editable="false"
                                         android:focusable="false"
+                                        android:importantForAutofill="noExcludeDescendants"
                                         android:focusableInTouchMode="true"
                                         android:hint="@string/start_date"
                                         android:textSize="14dp" />
@@ -325,6 +329,7 @@
                                         android:layout_height="wrap_content"
                                         android:clickable="true"
                                         android:editable="false"
+                                        android:importantForAutofill="noExcludeDescendants"
                                         android:focusable="false"
                                         android:focusableInTouchMode="true"
                                         android:hint="@string/end_date"
@@ -351,6 +356,7 @@
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:hint="@string/min_price"
+                                    android:importantForAutofill="noExcludeDescendants"
                                     android:inputType="number"
                                     android:textSize="14dp" />
 
@@ -368,6 +374,7 @@
                                     android:layout_height="wrap_content"
                                     android:hint="@string/max_price"
                                     android:inputType="number"
+                                    android:importantForAutofill="noExcludeDescendants"
                                     android:textSize="14dp" />
 
                             </android.support.design.widget.TextInputLayout>
@@ -506,6 +513,7 @@
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:hint="@string/search_picode"
+                                    android:importantForAutofill="noExcludeDescendants"
                                     android:inputType="number"
                                     android:textSize="14dp" />
 
@@ -522,6 +530,7 @@
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:hint="@string/city"
+                                    android:importantForAutofill="noExcludeDescendants"
                                     android:textSize="14dp" />
 
                             </android.support.design.widget.TextInputLayout>
@@ -538,6 +547,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:hint="@string/state"
+                                android:importantForAutofill="noExcludeDescendants"
                                 android:textSize="14dp" />
 
                         </android.support.design.widget.TextInputLayout>
@@ -552,6 +562,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:hint="@string/country"
+                                android:importantForAutofill="noExcludeDescendants"
                                 android:textSize="14dp" />
 
                         </android.support.design.widget.TextInputLayout>
@@ -566,6 +577,7 @@
                                 android:id="@+id/et_address_line1"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:importantForAutofill="noExcludeDescendants"
                                 android:hint="@string/address_line1"
                                 android:textSize="14dp" />
 
@@ -581,6 +593,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:hint="@string/address_line2"
+                                android:importantForAutofill="noExcludeDescendants"
                                 android:textSize="14dp" />
                         </android.support.design.widget.TextInputLayout>
 
@@ -599,6 +612,7 @@
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:hint="@string/postal_code"
+                                    android:importantForAutofill="noExcludeDescendants"
                                     android:textSize="14dp" />
 
                             </android.support.design.widget.TextInputLayout>
@@ -616,6 +630,7 @@
                                     android:layout_height="wrap_content"
                                     android:hint="@string/phone_number"
                                     android:inputType="phone"
+                                    android:importantForAutofill="noExcludeDescendants"
                                     android:textSize="14dp" />
 
                             </android.support.design.widget.TextInputLayout>
@@ -684,6 +699,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:hint="@string/hash_tag"
+                                android:importantForAutofill="noExcludeDescendants"
                                 android:textSize="14dp" />
 
                         </android.support.design.widget.TextInputLayout>
@@ -716,6 +732,7 @@
                                     android:id="@+id/et_url"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
+                                    android:importantForAutofill="noExcludeDescendants"
                                     android:hint="@string/addurl"
                                     android:textSize="14dp" />
 

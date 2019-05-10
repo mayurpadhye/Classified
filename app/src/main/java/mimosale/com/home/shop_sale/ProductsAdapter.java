@@ -94,6 +94,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.MyView
         RatingBar ratingBar;
         SparkButton spark_button;
         CardView cv_shop_main;
+        ImageView iv_pop_up;
 
         public MyViewHolder(View view) {
             super(view);
@@ -108,6 +109,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.MyView
             spark_button = (SparkButton) view.findViewById(R.id.spark_button);
             ratingBar = view.findViewById(R.id.ratingBar);
             cv_shop_main = view.findViewById(R.id.cv_shop_main);
+            iv_pop_up = view.findViewById(R.id.iv_pop_up);
 
         }
     }

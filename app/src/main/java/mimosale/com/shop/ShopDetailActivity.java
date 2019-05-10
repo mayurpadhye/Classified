@@ -44,6 +44,7 @@ import mimosale.com.network.RetrofitClient;
 import mimosale.com.network.WebServiceURLs;
 import mimosale.com.shop.adapter.ShopImageDetailsAdapter;
 import mimosale.com.shop.pojoClass.ShopImagesPojo;
+
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -74,12 +75,12 @@ import retrofit.client.Response;
 import static mimosale.com.helperClass.CustomPermissions.MY_PERMISSIONS_REQUEST_CALL_PHONE;
 import static mimosale.com.helperClass.CustomPermissions.MY_PERMISSIONS_REQUEST_LOCATION;
 
-public class ShopDetailActivity extends AppCompatActivity implements View.OnClickListener,OnMapReadyCallback {
+public class ShopDetailActivity extends AppCompatActivity implements View.OnClickListener, OnMapReadyCallback {
     ShimmerTextView tv_avg_rating;
     Shimmer shimmer;
     RecyclerView rv_shop_products;
 
-    ImageView iv_back,iv_phone;
+    ImageView iv_back, iv_phone;
     Button btn_submit, btn_back;
     Dialog dialog;
     private static ViewPager mPager;
@@ -91,8 +92,8 @@ public class ShopDetailActivity extends AppCompatActivity implements View.OnClic
     LinearLayout ll_highlight, ll_info;
     TextView tv_discount, tv_price_range, tv_price_range_detail, tv_location, tv_website, tv_category, tv_tag, tv_shop_name;
     String shop_id = "";
-    String lat="",lan="";
-  //  NestedScrollView nv_main;
+    String lat = "", lan = "";
+    //  NestedScrollView nv_main;
     ProgressDialog pDialog;
     List<String> shopImagesPojoList = new ArrayList<>();
     List<AllProductPojo> allProductPojoList = new ArrayList<>();
@@ -100,16 +101,20 @@ public class ShopDetailActivity extends AppCompatActivity implements View.OnClic
     RecyclerView rv_products;
     private GoogleMap gmap;
     RelativeLayout rl_direction;
-    Button btn_follow;
-    String phone="";
+    RelativeLayout rl_follow;
+    TextView tv_follow_text;
+    String phone = "";
+    RelativeLayout rl_like;
     TextView tv_photos;
-    String status_follow="follow";
+    String status_follow = "follow";
+    ImageView iv_follow;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shop_detail);
         initView();
-        rv_products=findViewById(R.id.rv_products);
+        rv_products = findViewById(R.id.rv_products);
         pDialog = new ProgressDialog(this);
         pDialog.setMessage("Loading...");
         //  getAllProducts();
@@ -123,8 +128,7 @@ public class ShopDetailActivity extends AppCompatActivity implements View.OnClic
         iv_phone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!phone.equals(""))
-                {
+                if (!phone.equals("")) {
                     phoneCallPermission();
 
                 }
@@ -132,18 +136,20 @@ public class ShopDetailActivity extends AppCompatActivity implements View.OnClic
             }
         });
 
-if (PrefManager.getInstance(ShopDetailActivity.this).IS_LOGIN())
-{
-    btn_follow.setVisibility(View.VISIBLE);
-}
-else
-{
-    btn_follow.setVisibility(View.GONE);
-}
-        btn_follow.setOnClickListener(new View.OnClickListener() {
+        if (PrefManager.getInstance(ShopDetailActivity.this).IS_LOGIN()) {
+          //  rl_follow.setVisibility(View.VISIBLE);
+        } else {
+          //  rl_follow.setVisibility(View.GONE);
+        }
+        rl_follow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                followShop(status_follow);
+                if (PrefManager.getInstance(ShopDetailActivity.this).IS_LOGIN()) {
+                    followShop(status_follow);
+                } else {
+                    Toast.makeText(ShopDetailActivity.this, getResources().getString(R.string.login_msg), Toast.LENGTH_SHORT).show();
+                }
+
             }
         });
         tv_photos.setOnClickListener(new View.OnClickListener() {
@@ -152,6 +158,56 @@ else
                 openImagesDialog();
             }
         });
+        rl_like.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (PrefManager.getInstance(ShopDetailActivity.this).IS_LOGIN()) {
+                    like_shop();
+                }
+            }
+        });
+    }
+
+
+    public void like_shop() {/*
+        try {
+            pDialog.show();
+            RetrofitClient retrofitClient = new RetrofitClient();
+            RestInterface service = retrofitClient.getAPIClient(WebServiceURLs.DOMAIN_NAME);
+            service.like_shop(shop_id, PrefManager.getInstance(ShopDetailActivity.this).getUserId(), new Callback<JsonElement>() {
+                @Override
+                public void success(JsonElement jsonElement, Response response) {
+                    //this method call if webservice success
+                    try {
+                        pDialog.dismiss();
+
+
+                        JSONObject jsonObject = new JSONObject(jsonElement.toString());
+                        String status = jsonObject.getString("status");
+
+                        if (status.equals("1")) {
+                        }
+
+
+                    } catch (JSONException | NullPointerException e) {
+                        e.printStackTrace();
+                        pDialog.dismiss();
+                        Log.i("detailsException", "" + e.toString());
+
+                    }
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+                    pDialog.dismiss();
+                    Toast.makeText(ShopDetailActivity.this, getResources().getString(R.string.check_internet), Toast.LENGTH_LONG).show();
+                    Log.i("fdfdfdfdfdf", "" + error.getMessage());
+
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }*/
     }
 
 
@@ -166,9 +222,12 @@ else
 
 
     public void initView() {
-        rl_direction=findViewById(R.id.rl_direction);
-        tv_photos=findViewById(R.id.tv_photos);
-        btn_follow=findViewById(R.id.btn_follow);
+        rl_direction = findViewById(R.id.rl_direction);
+        tv_follow_text = findViewById(R.id.tv_follow_text);
+        iv_follow = findViewById(R.id.iv_follow);
+        rl_like = findViewById(R.id.rl_like);
+        tv_photos = findViewById(R.id.tv_photos);
+        rl_follow = findViewById(R.id.rl_follow);
         shimmer = new Shimmer();
         tv_avg_rating = findViewById(R.id.tv_avg_rating);
         shop_id = getIntent().getStringExtra("shop_id");
@@ -204,7 +263,6 @@ else
         tv_location = findViewById(R.id.tv_location);
         tv_website = findViewById(R.id.tv_website);
         tv_tag = findViewById(R.id.tv_tag);
-
 
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -244,7 +302,7 @@ else
             pDialog.show();
             RetrofitClient retrofitClient = new RetrofitClient();
             RestInterface service = retrofitClient.getAPIClient(WebServiceURLs.DOMAIN_NAME);
-            service.getShopDetails(shop_id,PrefManager.getInstance(ShopDetailActivity.this).getUserId(), new Callback<JsonElement>() {
+            service.getShopDetails(shop_id, PrefManager.getInstance(ShopDetailActivity.this).getUserId(), new Callback<JsonElement>() {
                 @Override
                 public void success(JsonElement jsonElement, Response response) {
                     //this method call if webservice success
@@ -277,26 +335,22 @@ else
                                 String start_date = j1.getString("start_date");
                                 String end_date = j1.getString("end_date");
                                 String followStatus = j1.getString("followStatus");
-                                if (followStatus.equals("1"))
-                                {
-                                    btn_follow.setText("Unfollow");
-                                    status_follow="unfollow";
+                                if (followStatus.equals("1")) {
+                                    tv_follow_text.setText("Unfollow");
+                                    status_follow = "unfollow";
+                                    iv_follow.setImageDrawable(getResources().getDrawable(R.drawable.follower_colored));
+                                } else {
+                                    tv_follow_text.setText("Follow");
+                                    status_follow = "follow";
+                                    iv_follow.setImageDrawable(getResources().getDrawable(R.drawable.follower));
                                 }
-                                else
-                                {
-                                    btn_follow.setText("Follow");
-                                    status_follow="follow";
-                                }
-                                if (min_discount.equals("null"))
-                                {
+                                if (min_discount.equals("null")) {
                                     tv_discount.setVisibility(View.INVISIBLE);
-                                }
-                                else
-                                {
+                                } else {
                                     tv_discount.setVisibility(View.VISIBLE);
                                 }
 
-                                 phone = j1.getString("phone");
+                                phone = j1.getString("phone");
                                 String hash_tags = j1.getString("hash_tags");
                                 String description = j1.getString("description");
                                 String web_url = j1.getString("web_url");
@@ -340,41 +394,41 @@ else
 
                                 JSONArray products = j1.getJSONArray("products");
 
-                            if (products.length()>0)
-                             {
-                                 for (int k=0;k<products.length();k++)
-                                 {
-                                     JSONObject j2=products.getJSONObject(k);
-                                     String p_id = j2.getString("id");
-                                     String p_name = j2.getString("name");
-                                     String p_shop_id = j2.getString("shop_id");
-                                     String p_user_id = j2.getString("user_id");
-                                     String p_description = j2.getString("description");
-                                     String p_price = j2.getString("price");
-                                     String p_hash_tag = j2.getString("hash_tags");
-                                     String status1 = j2.getString("status");
-                                     String image1="";
-                                     String image2="";
-                                     if (j2.has("image1"))
-                                     { image1 = j2.getString("image1");}
-                                     if (j2.has("image2"))
-                                     {  image2 = j2.getString("image2");}
+                                if (products.length() > 0) {
+                                    for (int k = 0; k < products.length(); k++) {
+                                        JSONObject j2 = products.getJSONObject(k);
+                                        String p_id = j2.getString("id");
+                                        String p_name = j2.getString("name");
+                                        String p_shop_id = j2.getString("shop_id");
+                                        String p_user_id = j2.getString("user_id");
+                                        String p_description = j2.getString("description");
+                                        String p_price = j2.getString("price");
+                                        String p_hash_tag = j2.getString("hash_tags");
+                                        String status1 = j2.getString("status");
+                                        String image1 = "";
+                                        String image2 = "";
+                                        if (j2.has("image1")) {
+                                            image1 = j2.getString("image1");
+                                        }
+                                        if (j2.has("image2")) {
+                                            image2 = j2.getString("image2");
+                                        }
 
 
-                                     String image = "";
+                                        String image = "";
                             /* JSONArray product_images=j1.getJSONArray("product_images");
                                 for (int j=0;j<product_images.length();j++)
                                 {
                                     JSONObject j3=product_images.getJSONObject(k);
                                     image=j3.getString("image");
                                 }*/
-                                     allProductPojoList.add(new AllProductPojo(p_id, p_name, p_shop_id, p_user_id, p_description, p_price, p_hash_tag, status1, image1, image2));
+                                        allProductPojoList.add(new AllProductPojo(p_id, p_name, p_shop_id, p_user_id, p_description, p_price, p_hash_tag, status1, image1, image2));
 
-                                 }
+                                    }
 
-                                 ShopProductAdapter shopSaleAdapter = new ShopProductAdapter(allProductPojoList, ShopDetailActivity.this);
-                                 rv_shop_products.setAdapter(shopSaleAdapter);
-                             }
+                                    ShopProductAdapter shopSaleAdapter = new ShopProductAdapter(allProductPojoList, ShopDetailActivity.this);
+                                    rv_shop_products.setAdapter(shopSaleAdapter);
+                                }
 
 
                             }
@@ -407,8 +461,7 @@ else
 
     }
 
-    public void mapView()
-    {
+    public void mapView() {
 
         BottomSheetMapFragment addPhotoBottomDialogFragment =
                 BottomSheetMapFragment.newInstance();
@@ -438,7 +491,7 @@ else
                 // sees the explanation, try again to request the permission.
                 ActivityCompat.requestPermissions(ShopDetailActivity.this,
                         new String[]{Manifest.permission.CALL_PHONE},
-                        MY_PERMISSIONS_REQUEST_CALL_PHONE );
+                        MY_PERMISSIONS_REQUEST_CALL_PHONE);
 
 
             } else {
@@ -455,13 +508,13 @@ else
             return true;
         }
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
         switch (requestCode) {
 
-            case MY_PERMISSIONS_REQUEST_CALL_PHONE:
-            {
+            case MY_PERMISSIONS_REQUEST_CALL_PHONE: {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
@@ -472,7 +525,7 @@ else
                             == PackageManager.PERMISSION_GRANTED) {
 
                         Intent intent = new Intent(Intent.ACTION_CALL);
-                        intent.setData(Uri.parse("tel:" +phone));
+                        intent.setData(Uri.parse("tel:" + phone));
                         startActivity(intent);
 
                     }
@@ -489,72 +542,8 @@ else
 
         }
     }
-    public void getAllProducts() {
-
-        try {
-
-            RetrofitClient retrofitClient = new RetrofitClient();
-            RestInterface service = retrofitClient.getAPIClient(WebServiceURLs.DOMAIN_NAME);
-            service.getAllProducts(new Callback<JsonElement>() {
-                @Override
-                public void success(JsonElement jsonElement, Response response) {
-                    //this method call if webservice success
-                    try {
-                        allProductPojoList.clear();
-                        JSONObject jsonObject = new JSONObject(jsonElement.toString());
-                        String status = jsonObject.getString("status");
-
-                        if (status.equals("1")) {
-                            JSONArray data = jsonObject.getJSONArray("data");
-                            for (int i = 0; i < data.length(); i++) {
-                                JSONObject j1 = data.getJSONObject(i);
-                                String id = j1.getString("id");
-                                String name = j1.getString("name");
-                                String shop_id = j1.getString("shop_id");
-                                String user_id = j1.getString("user_id");
-                                String description = j1.getString("description");
-                                String price = j1.getString("price");
-                                String hash_tag = j1.getString("hash_tag");
-                                String status1 = j1.getString("status");
-                                String image1 = j1.getString("image1");
-                                String image2 = j1.getString("image2");
-                                String image = "";
-                              /*  JSONArray product_images=j1.getJSONArray("product_images");
-                                for (int k=0;k<product_images.length();k++)
-                                {
-                                    JSONObject j2=product_images.getJSONObject(k);
-                                    image=j2.getString("image");
-                                }*/
-                                allProductPojoList.add(new AllProductPojo(id, name, shop_id, user_id, description, price, hash_tag, status1, image1, image2));
-                            }
-
-                            ShopProductAdapter shopSaleAdapter = new ShopProductAdapter(allProductPojoList, ShopDetailActivity.this);
-                            rv_shop_products.setAdapter(shopSaleAdapter);
 
 
-                        }
-
-
-                    } catch (JSONException | NullPointerException e) {
-                        e.printStackTrace();
-
-                    }
-                }
-
-                @Override
-                public void failure(RetrofitError error) {
-                    Toast.makeText(ShopDetailActivity.this, getResources().getString(R.string.check_internet), Toast.LENGTH_LONG).show();
-                    Log.i("fdfdfdfdfdf", "" + error.getMessage());
-
-                }
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-
-        }
-
-
-    }//etAllShopAndSale
 
     @Override
     public void onClick(View v) {
@@ -578,28 +567,28 @@ else
     }
 
 
-    public void followShop(String follow)
-    {
+    public void followShop(String follow) {
         try {
             pDialog.show();
             RetrofitClient retrofitClient = new RetrofitClient();
             RestInterface service = retrofitClient.getAPIClient(WebServiceURLs.DOMAIN_NAME);
-            service.followShop(follow,PrefManager.getInstance(ShopDetailActivity.this).getUserId(),shop_id,"Bearer "+PrefManager.getInstance(ShopDetailActivity.this).getApiToken(), new Callback<JsonElement>() {
+            service.followShop(follow, PrefManager.getInstance(ShopDetailActivity.this).getUserId(), shop_id, "Bearer " + PrefManager.getInstance(ShopDetailActivity.this).getApiToken(), new Callback<JsonElement>() {
                 @Override
                 public void success(JsonElement jsonElement, Response response) {
 
                     try {
-                        JSONObject jsonObject=new JSONObject(jsonElement.toString());
+                        JSONObject jsonObject = new JSONObject(jsonElement.toString());
                         pDialog.dismiss();
-                        String status=jsonObject.getString("status");
-                        String message=jsonObject.getString("message");
-                        if (message.equals("Shop followed"))
-                        {
-                           btn_follow.setText("Unfollow");
-                        }
-                        else
-                        {
-                            btn_follow.setText("Follow");
+                        String status = jsonObject.getString("status");
+                        String message = jsonObject.getString("message");
+                        if (message.equals("Shop followed")) {
+                            status_follow="unfollow";
+                            tv_follow_text.setText("Unfollow");
+                            iv_follow.setImageDrawable(getResources().getDrawable(R.drawable.follower_colored));
+                        } else {
+                            status_follow="follow";
+                            tv_follow_text.setText("Follow");
+                            iv_follow.setImageDrawable(getResources().getDrawable(R.drawable.follower));
                         }
 
                     } catch (JSONException e) {

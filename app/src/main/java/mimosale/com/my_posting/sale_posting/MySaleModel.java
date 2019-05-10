@@ -1,4 +1,4 @@
-package mimosale.com.my_posting;
+package mimosale.com.my_posting.sale_posting;
 
 public class MySaleModel {
     String id,name,shop_id,user_id,start_date,end_date,min_discount,max_discount,description,web_url,hash_tags,status1,image1,image2,shop_name;
