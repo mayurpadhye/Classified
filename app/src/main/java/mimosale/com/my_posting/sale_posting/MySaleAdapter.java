@@ -31,6 +31,7 @@ import mimosale.com.network.WebServiceURLs;
 import mimosale.com.post.SalePostingActivity;
 import mimosale.com.products.AddProductsActivity;
 import mimosale.com.shop.ShopDetailActivity;
+import mimosale.com.shop.ShopDetailsActivityNew;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -101,7 +102,7 @@ ProgressBar p_bar;
         holder.cv_shop_main.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mctx.startActivity(new Intent(mctx, ShopDetailActivity.class).putExtra("shop_id",items.getId()));
+                mctx.startActivity(new Intent(mctx, ShopDetailsActivityNew.class).putExtra("shop_id",items.getId()));
             }
         });
 

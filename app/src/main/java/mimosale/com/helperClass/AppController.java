@@ -8,6 +8,9 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
 
+import mimosale.com.R;
+import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
+
 public class AppController extends Application {
 
     public static final String TAG = AppController.class
@@ -22,6 +25,11 @@ public class AppController extends Application {
     public void onCreate() {
         super.onCreate();
         mInstance = this;
+        CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
+                .setDefaultFontPath("@font/segoe_ui.ttf")
+                .setFontAttrId(R.attr.fontPath)
+                .build()
+        );
     }
 
     public static synchronized AppController getInstance() {

@@ -61,8 +61,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -92,6 +95,7 @@ public class RegistrationActivity extends AppCompatActivity {
     TextInputLayout tl_f_name,tl_c_pass,tl_pass,tl_email,tl_mobile_no,tl_last_name;
     String convertedImage;
     Bitmap myBitmap;
+    String imageFilePath="";
     Uri picUri;
     File f;
     String intent_from="";
@@ -262,10 +266,7 @@ public class RegistrationActivity extends AppCompatActivity {
         multipartTypedOutput.addPart("first_name", new TypedString(et_first_name.getText().toString().trim()));
         multipartTypedOutput.addPart("last_name", new TypedString(et_last_name.getText().toString().trim()));
         multipartTypedOutput.addPart("mobile", new TypedString(et_mobile.getText().toString().trim()));
-
-
-
-        if (f!=null)
+       if (f!=null)
         {
             multipartTypedOutput.addPart("profile_image", new TypedFile("application/octet-stream", f));
         }
@@ -273,9 +274,6 @@ public class RegistrationActivity extends AppCompatActivity {
         {
             multipartTypedOutput.addPart("profile_image", new TypedString(""));
         }
-
-        //loop through object to get the path of the videos that has picked by user
-
 
 
         RetrofitClient retrofitClient = new RetrofitClient();
@@ -388,6 +386,7 @@ public class RegistrationActivity extends AppCompatActivity {
                     String path = android.os.Environment.getExternalStorageDirectory() + File.separator + "Phoenix" + File.separator + "default";
                     f.delete();
                     OutputStream outFile = null;
+                    f=createImageFile();
                     File file = new File(path, String.valueOf(System.currentTimeMillis()) + ".jpg");
                     try {
                         outFile = new FileOutputStream(file);
@@ -576,7 +575,22 @@ public class RegistrationActivity extends AppCompatActivity {
        else
            return false;
     }
+    private File createImageFile() throws IOException {
+        String timeStamp =
+                new SimpleDateFormat("yyyyMMdd_HHmmss",
+                        Locale.getDefault()).format(new Date());
+        String imageFileName = "IMG_" + timeStamp + "_";
+        File storageDir =
+                getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
 
+        imageFilePath = image.getAbsolutePath();
+        return image;
+    }
     public boolean validateConfirmPassword( String Cpassword)
     {
         if (Cpassword.length()>0 && Cpassword.equals(et_password.getText().toString()))

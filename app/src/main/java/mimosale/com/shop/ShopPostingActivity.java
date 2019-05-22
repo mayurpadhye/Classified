@@ -1,5 +1,6 @@
 package mimosale.com.shop;
 
+import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
@@ -13,10 +14,15 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationManager;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -25,6 +31,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -67,6 +74,7 @@ import mimosale.com.helperClass.CustomPermissions;
 import mimosale.com.helperClass.CustomUtils;
 import mimosale.com.helperClass.PlaceArrayAdapter;
 import mimosale.com.helperClass.PrefManager;
+import mimosale.com.map.MapsActivity;
 import mimosale.com.network.RestInterface;
 import mimosale.com.network.RetrofitClient;
 import mimosale.com.network.WebServiceURLs;
@@ -84,8 +92,14 @@ import com.google.android.gms.location.places.PlaceBuffer;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.libraries.places.api.model.TypeFilter;
+import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -105,6 +119,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -138,6 +153,7 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
     boolean ll_address_visible = false;
     boolean ll_other_visible = false;
     TextView tv_url;
+    String intet_from = "";
     ProgressDialog progressDialog;
     LinearLayout ll_discount;
     ArrayList<ImageVideoData> image_thumbnails, video_thumbnails;
@@ -148,6 +164,7 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
     TextView toolbar_title;
     ImageView iv_back;
     ProgressBar p_bar;
+    Button btn_current_address, btn_add_address;
     Context context;
     List<String> allPrefList = new ArrayList<>();
     List<String> allPrefIds = new ArrayList<>();
@@ -155,13 +172,14 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
     Button btn_save;
     String isUpdate = "";
     String lattitude = "", langitude = "";
+    double lat_new = 0.0, lon_new = 0.0;
     EditText et_start_date, et_end_date, et_city, et_state, et_country;
     TextView tv_other_details, tv_address_details, tv_pricing_details, tv_shop_details;
     TextInputLayout tl_shop_name, tl_shop_desc, tl_min_discount, tl_max_discount, tl_min_price, tl_max_price, tl_pincode, tl_city, tl_address_line1;
     TextInputLayout tl_address_line2, tl_phone_no, tl_hash_tag, tl_url, tl_end_date, tl_start_date;
     EditText et_shop_name, et_shop_desc, et_min_discount, et_max_discount, et_min_price, et_max_price, et_pincode,
             et_address_line1, et_address_line2, et_phone, et_hash_tag, et_url;
-    String shop_id="";
+    String shop_id = "";
 
     private static final LatLngBounds BOUNDS_MOUNTAIN_VIEW = new LatLngBounds(
             new LatLng(37.398160, -122.180831), new LatLng(37.430610, -121.972090));
@@ -172,6 +190,14 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        String languageToLoad = "ja";
+        Locale locale = new Locale(languageToLoad);
+        Locale.setDefault(locale);
+        Configuration config = new Configuration();
+        config.locale = locale;
+        getBaseContext().getResources().updateConfiguration(config,
+                getBaseContext().getResources().getDisplayMetrics());
+
         setContentView(R.layout.activity_shop_posting);
         context = ShopPostingActivity.this;
 
@@ -187,29 +213,39 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
 
             }
         });
-
-
-        et_pincode.addTextChangedListener(new TextWatcher() {
-
-            public void afterTextChanged(Editable s) {
-
-            }
-
-            public void beforeTextChanged(CharSequence s, int start,
-                                          int count, int after) {
-            }
-
-            public void onTextChanged(CharSequence s, int start,
-                                      int before, int count) {
-                if (s.length() == 7 || s.length() == 8)
-                    getDataByPincode(s.toString());
-                else {
-                    et_city.setText("");
-                    et_country.setText("");
-                    et_state.setText("");
-                }
+        btn_add_address.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivityForResult(new Intent(ShopPostingActivity.this, MapsActivity.class), 1);
             }
         });
+        btn_current_address.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                // get the last know location from your location manager.
+                if (ActivityCompat.checkSelfPermission(ShopPostingActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(ShopPostingActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
+                Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                // now get the lat/lon from the location and do something with it.
+
+                lat_new=location.getLatitude();
+                lon_new=location.getLongitude();
+
+                getLocation(lat_new,lon_new);
+
+            }
+        });
+
+
 
 
         btn_save.setOnClickListener(new View.OnClickListener() {
@@ -294,8 +330,56 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
             }
         });
 
+        et_city.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(ShopPostingActivity.this, MapsActivity.class));
+            }
+        });
 
+        et_pincode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!com.google.android.libraries.places.api.Places.isInitialized()) {
+                    com.google.android.libraries.places.api.Places.initialize(ShopPostingActivity.this,  getResources().getString(R.string.google_maps_key));
+                    PlacesClient placesClient = com.google.android.libraries.places.api.Places.createClient(ShopPostingActivity.this);
+                }
+                List<com.google.android.libraries.places.api.model.Place.Field> fields = Arrays.asList(com.google.android.libraries.places.api.model.Place.Field.ID, com.google.android.libraries.places.api.model.Place.Field.NAME, com.google.android.libraries.places.api.model.Place.Field.LAT_LNG, com.google.android.libraries.places.api.model.Place.Field.ADDRESS);
+                Intent intent = new Autocomplete.IntentBuilder(
+                        AutocompleteActivityMode.OVERLAY, fields)
+                        .setTypeFilter(TypeFilter.REGIONS)
+                        .build(ShopPostingActivity.this);
+                startActivityForResult(intent, 1);
+                Log.d("sda", String.valueOf(fields));
+            }
+        });
     }//onCreateClose
+
+    public void getLocation(double lat,double lon)
+    {
+        Geocoder geocoder = new Geocoder(ShopPostingActivity.this);
+
+        try {
+            List<Address> addressList = geocoder.getFromLocation(lat, lon, 1);
+            if (addressList != null && addressList.size() > 0) {
+                String locality = addressList.get(0).getAddressLine(0);
+                String country = addressList.get(0).getCountryName();
+                if (!locality.isEmpty() && !country.isEmpty())
+                    //resutText.setText(locality + "  " + country);
+                    ll_address_details.setVisibility(View.VISIBLE);
+                et_pincode.setText(addressList.get(0).getPostalCode());
+                et_city.setText(addressList.get(0).getLocality());
+                et_state.setText(addressList.get(0).getAdminArea());
+                et_country.setText(addressList.get(0).getCountryName());
+                et_address_line1.setText(addressList.get(0).getAddressLine(0));
+                lat_new =lat;
+                lon_new = lon;
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 
     public void getDataByPincode(String pincode) {
@@ -332,7 +416,7 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
                         String lat = location.getString("lat");
                         String lng = location.getString("lng");
 
-                        Toast.makeText(context, "" + lat, Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(context, "" + lat, Toast.LENGTH_SHORT).show();
 
                         getAddress(lat, lng);
                     }
@@ -361,9 +445,12 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
     }
 
 
-    public void getAddress(String lat, String lng) {
+    public void getAddress(final String lat, final String lng) {
         lattitude = lat;
         langitude = lng;
+        lat_new = Double.parseDouble(lat);
+        lon_new = Double.parseDouble(lng);
+
         String tag_string_req = "string_req";
         URL url1 = null;
         String url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lng + "&key=AIzaSyC6in7wfj-jFmh4rINHmZ8Pu13IfqNvUYw";
@@ -427,12 +514,12 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
                                 }
                             }
 
+                            lat_new = Double.parseDouble(lat);
+                            lon_new = Double.parseDouble(lng);
+                            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
+                            //getAddress(lat,lng);
                         }
-
-                        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-
-                        //getAddress(lat,lng);
                     }
 
 
@@ -561,7 +648,8 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
     public void initView() {
         Intent i = getIntent();
         isUpdate = i.getStringExtra("isUpdate");
-
+        btn_current_address = findViewById(R.id.btn_current_address);
+        btn_add_address = findViewById(R.id.btn_add_address);
 
         pDialog = new ProgressDialog(this);
         pDialog.setMessage("Loading...");
@@ -703,18 +791,21 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
                 et_shop_name.setText(shop_name);
                 et_shop_desc.setText(shop_desc);
 
-                if (!min_discount.equals("null"))
-                { et_min_discount.setText(min_discount);}
+                if (!min_discount.equals("null")) {
+                    et_min_discount.setText(min_discount);
+                }
 
-                if (!max_discount.equals("null"))
-                { et_max_discount.setText(max_discount);}
+                if (!max_discount.equals("null")) {
+                    et_max_discount.setText(max_discount);
+                }
 
-                if (!max_price.equals("null"))
-                {  et_max_price.setText(max_price);}
+                if (!max_price.equals("null")) {
+                    et_max_price.setText(max_price);
+                }
 
-                if (!min_price.equals("null"))
-                { et_min_price.setText(min_price);}
-
+                if (!min_price.equals("null")) {
+                    et_min_price.setText(min_price);
+                }
 
 
                 et_start_date.setText(start_date);
@@ -904,12 +995,11 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
 
         if (type.equals("save")) {
 
-            if (isUpdate.equals("update_shop"))
-            {
+            if (isUpdate.equals("update_shop")) {
+
                 updateShopDetails();
 
-            }
-            else{
+            } else {
                 addShopDetails();
             }
 
@@ -966,8 +1056,7 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
-    public void updateShopDetails()
-    {
+    public void updateShopDetails() {
         try {
             PrefManager.getInstance(context).getUserId();
             p_bar.setVisibility(View.VISIBLE);
@@ -1018,7 +1107,7 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
 
                                 if (status.equals("1")) {
 
-                                    Toast.makeText(context, "Shop Successfully Updated" , Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(context, "Shop Successfully Updated", Toast.LENGTH_SHORT).show();
 
                                     new SweetAlertDialog(context, SweetAlertDialog.SUCCESS_TYPE)
                                             .setTitleText(getResources().getString(R.string.success))
@@ -1073,8 +1162,8 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
             multipartTypedOutput.addPart("state", new TypedString("AM"));
             multipartTypedOutput.addPart("country", new TypedString("AM"));
             multipartTypedOutput.addPart("pincode", new TypedString(et_pincode.getText().toString()));
-            multipartTypedOutput.addPart("lat", new TypedString("22.22"));
-            multipartTypedOutput.addPart("lon", new TypedString("20.22"));
+            multipartTypedOutput.addPart("lat", new TypedString("" + lat_new));
+            multipartTypedOutput.addPart("lon", new TypedString("" + lon_new));
             multipartTypedOutput.addPart("low_price", new TypedString(et_min_price.getText().toString()));
             multipartTypedOutput.addPart("high_price", new TypedString(et_max_price.getText().toString()));
             multipartTypedOutput.addPart("min_discount", new TypedString(et_min_discount.getText().toString()));
@@ -1459,6 +1548,64 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
 
             }
         }
+        if (data.hasExtra("address")) {
+            intet_from=data.getStringExtra("address");
+            if (data.getStringExtra("address").equals("address")) {
+                Geocoder geocoder = new Geocoder(ShopPostingActivity.this);
+
+                try {
+                    List<Address> addressList = geocoder.getFromLocation(data.getDoubleExtra("lat", 0.0), data.getDoubleExtra("lon", 0.0), 1);
+                    if (addressList != null && addressList.size() > 0) {
+                        String locality = addressList.get(0).getAddressLine(0);
+                        String country = addressList.get(0).getCountryName();
+                        if (!locality.isEmpty() && !country.isEmpty())
+                            //resutText.setText(locality + "  " + country);
+                            ll_address_details.setVisibility(View.VISIBLE);
+                        et_pincode.setText(addressList.get(0).getPostalCode());
+                        et_city.setText(addressList.get(0).getLocality());
+                        et_state.setText(addressList.get(0).getAdminArea());
+                        et_country.setText(addressList.get(0).getCountryName());
+                        et_address_line1.setText(addressList.get(0).getAddressLine(0));
+                        lat_new = data.getDoubleExtra("lat", 0.0);
+                        lon_new = data.getDoubleExtra("lon", 0.0);
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+
+        }
+        if (!data.hasExtra("address"))
+        {
+            com.google.android.libraries.places.api.model.Place placepick = Autocomplete.getPlaceFromIntent(data);
+            LatLng   piclatlng = placepick.getLatLng();
+
+            Geocoder geocoder = new Geocoder(ShopPostingActivity.this);
+
+            try {
+                List<Address> addressList = geocoder.getFromLocation(piclatlng.latitude, piclatlng.longitude, 1);
+                if (addressList != null && addressList.size() > 0) {
+                    String locality = addressList.get(0).getAddressLine(0);
+                    String country = addressList.get(0).getCountryName();
+                    if (!locality.isEmpty() && !country.isEmpty())
+                        //resutText.setText(locality + "  " + country);
+                        et_pincode.setText(addressList.get(0).getPostalCode());
+                    et_city.setText(addressList.get(0).getLocality());
+                    et_state.setText(addressList.get(0).getAdminArea());
+                    et_country.setText(addressList.get(0).getCountryName());
+                    et_address_line1.setText(addressList.get(0).getAddressLine(0));
+                    lat_new=piclatlng.latitude;
+                    lon_new=piclatlng.longitude;
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
 
     }
 

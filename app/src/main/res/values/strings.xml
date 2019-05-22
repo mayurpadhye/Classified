@@ -280,4 +280,18 @@
     <string name="reach_us_on">Reach Us On</string>
     <string name="login_msg">Please Login To Continue</string>
     <string name="want_logout">Do you want to logout?</string>
+    <string name="enter_login_id">Please Enter Login Id</string>
+    <string name="email_or_mobile_number">Email/Mobile Number</string>
+    <string name="view_more">View More Info</string>
+    <string name="write_a_review">Write a Review</string>
+    <string name="address">Address:</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="add_address">Add Address</string>
+    <string name="your_location">Your Location</string>
+    <string name="search_address">Search Address</string>
+    <string name="use_this_address">Use this Address</string>
+    <string name="use_current_location">Use Current Location</string>
+    <string name="add_addess">Add Address</string>
+    <string name="discount_text">Discount</string>
+    <string name="mimo_discount">MIMO discount coupon</string>
 </resources>

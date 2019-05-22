@@ -369,11 +369,6 @@ RelativeLayout rl_posting;
     }
 
     public void showSelectPostingDailog() {
-
-
-
-
-
         dialog = new BottomSheetDialog(this);
         dialog.setContentView(R.layout.dialog_select_posting);
         RadioButton rb_shop_posting = dialog.findViewById(R.id.rb_shop_posting);
@@ -383,7 +378,6 @@ RelativeLayout rl_posting;
         rb_sale_posting.setOnClickListener(this);
         rb_product_posting.setOnClickListener(this);
         dialog.show();
-
 
     }
 
@@ -508,7 +502,7 @@ RelativeLayout rl_posting;
                     }
 
                 } else {
-                       checkLocationPermission();
+                      // checkLocationPermission();
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
 
@@ -519,5 +513,7 @@ RelativeLayout rl_posting;
 
         }
     }
+
+
 
 }

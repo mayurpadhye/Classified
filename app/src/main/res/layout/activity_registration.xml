@@ -69,6 +69,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/first_name"
+            android:importantForAutofill="noExcludeDescendants"
             android:textSize="14dp" />
     </android.support.design.widget.TextInputLayout>
     <android.support.design.widget.TextInputLayout
@@ -83,6 +84,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/last_name"
+            android:importantForAutofill="noExcludeDescendants"
             android:inputType="text"
             android:textSize="14dp" />
     </android.support.design.widget.TextInputLayout>
@@ -102,6 +104,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/mobile_no"
+                        android:importantForAutofill="noExcludeDescendants"
                         android:inputType="phone"
                         android:textSize="14dp" />
                 </android.support.design.widget.TextInputLayout>
@@ -117,6 +120,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/email_id"
+                        android:importantForAutofill="noExcludeDescendants"
                         android:inputType="textEmailAddress"
                         android:textSize="14dp" />
                 </android.support.design.widget.TextInputLayout>
@@ -132,6 +136,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/passsword"
+                        android:importantForAutofill="noExcludeDescendants"
                         android:inputType="textPassword"
                         android:textSize="14dp" />
                 </android.support.design.widget.TextInputLayout>
@@ -147,6 +152,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/confirm_pass"
+                        android:importantForAutofill="noExcludeDescendants"
                         android:inputType="textPassword"
                         android:textSize="14dp" />
                 </android.support.design.widget.TextInputLayout>

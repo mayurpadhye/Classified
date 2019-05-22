@@ -432,12 +432,37 @@
                             />
                     </RelativeLayout>
 
+                    <Button
+                        android:id="@+id/btn_current_address"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="35dp"
+                        android:text="@string/use_current_location"
+                        android:textAllCaps="false"
+                        android:layout_margin="@dimen/padding_10"
+                        android:drawablePadding="@dimen/padding_10"
+                        android:ems="10"
+                        android:background="@drawable/rounded_shape_button"
+                        />
+                    <Button
+                        android:id="@+id/btn_add_address"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="35dp"
+                        android:text="@string/add_addess"
+                        android:textAllCaps="false"
+                        android:layout_margin="@dimen/padding_10"
+                        android:drawablePadding="@dimen/padding_10"
+                        android:ems="10"
+                        android:textColor="@color/white"
+                        android:background="@drawable/btn_rounnded_red"
+                        />
                     <LinearLayout
                         android:id="@+id/ll_address_details"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:visibility="visible">
+                        android:visibility="gone">
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -513,6 +538,9 @@
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:hint="@string/search_picode"
+                                    android:focusable="false"
+                                    android:focusableInTouchMode="true"
+                                    android:clickable="true"
                                     android:importantForAutofill="noExcludeDescendants"
                                     android:inputType="number"
                                     android:textSize="14dp" />
@@ -620,9 +648,7 @@
                             <android.support.design.widget.TextInputLayout
                                 android:id="@+id/tl_phone_no"
                                 android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-
-                                >
+                                android:layout_height="wrap_content">
 
                                 <EditText
                                     android:id="@+id/et_phone"

@@ -221,37 +221,16 @@ String intent_from="";
 
     public void checkValidation()
     {
-        if (!isValidMail(et_email.getText().toString().trim(),et_email))
+
+        if (et_email.getText().toString().trim().length()==0)
         {
+            et_email.requestFocus();
+            tl_email.setError(getResources().getString(R.string.enter_login_id));
+            Snackbar.make(rl_main, ""+getResources().getString(R.string.enter_login_id), Snackbar.LENGTH_LONG)
+                    .setAction(getResources().getString(R.string.retry), mOnClickListener)
+                    .setActionTextColor(Color.RED)
 
-            if (et_email.getText().toString().trim().length()==0)
-            {
-                et_email.requestFocus();
-                tl_email.setError(getResources().getString(R.string.enter_email_id));
-                Snackbar.make(rl_main, ""+getResources().getString(R.string.enter_email_id), Snackbar.LENGTH_LONG)
-                        .setAction(getResources().getString(R.string.retry), mOnClickListener)
-                        .setActionTextColor(Color.RED)
-                        .show();
-            }
-            else
-            {
-                et_email.requestFocus();
-                tl_email.setError(getResources().getString(R.string.email_error));
-                Snackbar.make(rl_main, ""+getResources().getString(R.string.email_error), Snackbar.LENGTH_LONG)
-                        .setAction(getResources().getString(R.string.retry), mOnClickListener)
-                        .setActionTextColor(Color.RED)
-                        .show();
-            }
-
-
-
-            mOnClickListener = new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                   checkValidation();
-                }
-            };
-
+                    .show();
             return;
         }
         if (!validatePassword(et_password.getText().toString().trim()))
@@ -273,7 +252,21 @@ String intent_from="";
         }
         Login();
     }//checkValidationClose
-
+    private boolean isValidMobile(String phone) {
+        boolean check=false;
+        if(!Pattern.matches("[a-zA-Z]+", phone)) {
+            if(phone.length() < 8 || phone.length() > 15) {
+                // if(phone.length() != 10) {
+                check = false;
+                et_email.setError("Not Valid Number");
+            } else {
+                check = true;
+            }
+        } else {
+            check=false;
+        }
+        return check;
+    }
     public boolean validatePassword( String password)
     {
         if (password.length()>0)

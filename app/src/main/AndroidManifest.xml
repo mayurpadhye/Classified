@@ -35,7 +35,7 @@
             android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyC6in7wfj-jFmh4rINHmZ8Pu13IfqNvUYw" />
+            android:value="AIzaSyC6in7wfj-jFmh4rINHmZ8Pu13IfqNvUYw" /><!--AIzaSyC6in7wfj-jFmh4rINHmZ8Pu13IfqNvUYw-->
 
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -137,7 +137,11 @@
             android:name=".google_map.ShopsOnMapActivity"
             android:label="@string/title_activity_shops_on_map" />
         <activity android:name=".profile.ProfilePictureActivity" />
-        <activity android:name=".account.HelpSupportActivity"></activity>
+        <activity android:name=".account.HelpSupportActivity" />
+        <activity android:name=".shop.ShopDetailsActivityNew" />
+        <activity
+            android:name=".map.MapsActivity"
+            android:label="@string/title_activity_maps"></activity>
     </application>
 
 </manifest>

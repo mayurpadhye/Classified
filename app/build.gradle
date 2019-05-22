@@ -28,13 +28,23 @@ android {
         exclude 'project.properties'
         exclude 'META-INF/INDEX.LIST'
     }
+    ext {
+        compileSdkVersion   = 28
+        targetSdkVersion    = 28
+        buildToolsVersion   = "28.0.8"
+        supportLibVersion   = "28.0.0"
+        googlePlayServicesVersion = "11.6.2"
+        androidMapsUtilsVersion = "0.5+"
+    }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
-    implementation 'com.google.android.gms:play-services-maps:16.1.0'
+
+
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
@@ -52,8 +62,6 @@ dependencies {
     implementation 'de.hdodenhof:circleimageview:3.0.0'
     implementation 'com.github.siyamed:android-shape-imageview:0.9.+@aar'
     implementation 'com.github.joaquimley:faboptions:1.2.0'
-    implementation 'com.github.bumptech.glide:glide:3.7.0'
-    implementation 'com.github.bumptech.glide:glide:4.0.0'
     implementation 'com.etsy.android.grid:library:1.0.5'
     implementation 'com.squareup.retrofit2:converter-gson:2.5.0'
     implementation 'com.github.f0ris.sweetalert:library:1.5.1'
@@ -61,17 +69,29 @@ dependencies {
     implementation 'com.github.varunest:sparkbutton:1.0.6'
     implementation 'com.facebook.shimmer:shimmer:0.1.0@aar'
     implementation 'com.romainpiel.shimmer:library:1.4.0@aar'
-    implementation 'com.google.android.gms:play-services-places:11.0.2'
+
+
+    implementation 'com.google.firebase:firebase-core:15.0.2'
+    implementation 'com.google.firebase:firebase-messaging:15.0.2'
+    implementation 'com.google.android.gms:play-services-maps:15.0.1'
+
+    implementation 'com.google.android.gms:play-services-location:15.0.1'
+    implementation 'com.google.android.gms:play-services-places:15.0.1'
+
+    implementation 'com.google.android.libraries.places:places:1.1.0'
     implementation 'com.thomashaertel:multispinner:0.1.1'
     implementation 'com.github.rjsvieira:floatingMenu:1.3.0'
     implementation 'com.android.volley:volley:1.1.0'
     implementation 'com.squareup.picasso:picasso:2.5.2'
     implementation 'com.squareup.retrofit:retrofit:1.9.0'
     implementation 'com.squareup.okhttp:okhttp:2.4.0'
-    implementation 'am.appwise.components:NoInternetDialog:1.1.3'
+    implementation 'uk.co.chrisjenx:calligraphy:2.3.0'
+
+
     repositories {
         mavenCentral()
     }
+
     implementation 'com.sothree.slidinguppanel:library:3.4.0'
     implementation 'com.commit451:PhotoView:1.2.4'
     implementation 'org.jetbrains:annotations-java5:15.0'
@@ -79,5 +99,7 @@ dependencies {
         exclude group: 'org.apache.httpcomponents'
         exclude group: 'org.json', module: 'json'
     }
+
     annotationProcessor 'com.google.cloud:google-cloud-translate:1.3.1'
 }
+

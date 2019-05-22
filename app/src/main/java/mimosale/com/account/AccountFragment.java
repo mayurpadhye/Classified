@@ -332,14 +332,10 @@ else
                         .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
                             @Override
                             public void onClick(SweetAlertDialog sDialog) {
-
                                 PrefManager.getInstance(getActivity()).Logout();
                                 startActivity(new Intent(getActivity(),LoginActivity.class).putExtra("intent_from","login"));
                                 getActivity().finish();
-
-
-                                sDialog.dismissWithAnimation();
-                            }
+                                sDialog.dismissWithAnimation();                            }
                         })
                         .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
                             @Override
@@ -348,8 +344,7 @@ else
                             }
                         })
                         .show();
-                break;
-
+                        break;
 
             case R.id.tv_help_support:
 

@@ -14,4 +14,5 @@
     <color name="color_orange">#FF7F00</color>
     <color name="background">#dddddd</color>
     <color name="purple">#2A2F3D</color>
+    <color name="text_shadow">#7F000000</color>
 </resources>

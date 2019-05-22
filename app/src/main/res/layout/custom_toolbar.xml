@@ -2,6 +2,7 @@
 <android.support.design.widget.AppBarLayout android:layout_width="match_parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="wrap_content"
+    android:background="@color/white"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <android.support.design.widget.CollapsingToolbarLayout
@@ -9,11 +10,13 @@
         android:layout_height="match_parent"
         app:contentScrim="?attr/colorPrimary"
         app:expandedTitleGravity="top"
+        android:background="@color/white"
         app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
 
         <android.support.v7.widget.Toolbar
             android:layout_width="match_parent"
             android:id="@+id/toolbar"
+            android:background="@color/white"
             android:layout_height="?attr/actionBarSize"
             app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
             app:layout_collapseMode="pin">
@@ -30,19 +33,23 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="@dimen/padding_10"
                     android:layout_centerVertical="true"
-                    android:src="@drawable/ic_back_arrow"/>
+                    android:src="@drawable/ic_nav_back"/>
+
                 <TextView
-                    android:layout_toRightOf="@+id/iv_back"
-                    android:padding="5dp"
-                    android:layout_marginLeft="20dp"
                     android:id="@+id/toolbar_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Login"
-                    android:textSize="18dp"
-                    android:textColor="@color/black"
                     style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
-                    android:layout_gravity="center" />
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_centerHorizontal="true"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:layout_centerInParent="true"
+                    android:fontFamily="@font/georgia_bold"
+                    android:padding="5dp"
+                    android:text="Login"
+                    android:textColor="@color/black"
+                    android:textSize="24dp" />
                 <ImageView
                     android:id="@+id/iv_edit"
                     android:layout_width="30dp"
@@ -54,8 +61,7 @@
                     android:layout_marginTop="5dp"
                     android:padding="5dp"
                     android:visibility="gone"
-                    android:src="@drawable/edit64"
-                    />
+                    android:src="@drawable/edit64"/>
             </RelativeLayout>
             </FrameLayout>
 

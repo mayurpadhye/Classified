@@ -23,6 +23,8 @@ import mimosale.com.home.shop_sale.ShopSaleModel;
 import mimosale.com.network.WebServiceURLs;
 import mimosale.com.products.ProductDetailsActivity;
 import mimosale.com.shop.ShopDetailActivity;
+import mimosale.com.shop.ShopDetailsActivityNew;
+
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.github.siyamed.shapeimageview.RoundedImageView;
 import com.romainpiel.shimmer.Shimmer;
@@ -90,7 +92,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.MyViewHold
             public void onClick(View v) {
 
                 if (items.getType().equals("shop"))
-                    mctx.startActivity(new Intent(mctx,ShopDetailActivity.class).putExtra("shop_id",items.getId()));
+                    mctx.startActivity(new Intent(mctx,ShopDetailsActivityNew.class).putExtra("shop_id",items.getId()).putExtra("shop_name",items.getName()));
 
                 else
                     mctx.startActivity(new Intent(mctx, ProductDetailsActivity.class).putExtra("product_id", items.getId()));
