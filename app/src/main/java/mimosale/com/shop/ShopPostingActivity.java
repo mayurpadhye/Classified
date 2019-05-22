@@ -237,15 +237,13 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
                 Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 // now get the lat/lon from the location and do something with it.
 
-                lat_new=location.getLatitude();
-                lon_new=location.getLongitude();
+                lat_new = location.getLatitude();
+                lon_new = location.getLongitude();
 
-                getLocation(lat_new,lon_new);
+                getLocation(lat_new, lon_new);
 
             }
         });
-
-
 
 
         btn_save.setOnClickListener(new View.OnClickListener() {
@@ -340,8 +338,9 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
         et_pincode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 if (!com.google.android.libraries.places.api.Places.isInitialized()) {
-                    com.google.android.libraries.places.api.Places.initialize(ShopPostingActivity.this,  getResources().getString(R.string.google_maps_key));
+                    com.google.android.libraries.places.api.Places.initialize(ShopPostingActivity.this, getResources().getString(R.string.google_maps_key));
                     PlacesClient placesClient = com.google.android.libraries.places.api.Places.createClient(ShopPostingActivity.this);
                 }
                 List<com.google.android.libraries.places.api.model.Place.Field> fields = Arrays.asList(com.google.android.libraries.places.api.model.Place.Field.ID, com.google.android.libraries.places.api.model.Place.Field.NAME, com.google.android.libraries.places.api.model.Place.Field.LAT_LNG, com.google.android.libraries.places.api.model.Place.Field.ADDRESS);
@@ -349,14 +348,14 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
                         AutocompleteActivityMode.OVERLAY, fields)
                         .setTypeFilter(TypeFilter.REGIONS)
                         .build(ShopPostingActivity.this);
+                intent.putExtra("address", "address");
                 startActivityForResult(intent, 1);
                 Log.d("sda", String.valueOf(fields));
             }
         });
     }//onCreateClose
 
-    public void getLocation(double lat,double lon)
-    {
+    public void getLocation(double lat, double lon) {
         Geocoder geocoder = new Geocoder(ShopPostingActivity.this);
 
         try {
@@ -372,7 +371,7 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
                 et_state.setText(addressList.get(0).getAdminArea());
                 et_country.setText(addressList.get(0).getCountryName());
                 et_address_line1.setText(addressList.get(0).getAddressLine(0));
-                lat_new =lat;
+                lat_new = lat;
                 lon_new = lon;
             }
 
@@ -1545,11 +1544,39 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
                     }
                     break;
 
+                case 1:
+
+                    com.google.android.libraries.places.api.model.Place placepick = Autocomplete.getPlaceFromIntent(data);
+                    LatLng piclatlng = placepick.getLatLng();
+
+                    Geocoder geocoder = new Geocoder(ShopPostingActivity.this);
+
+                    try {
+                        List<Address> addressList = geocoder.getFromLocation(piclatlng.latitude, piclatlng.longitude, 1);
+                        if (addressList != null && addressList.size() > 0) {
+                            String locality = addressList.get(0).getAddressLine(0);
+                            String country = addressList.get(0).getCountryName();
+                            if (!locality.isEmpty() && !country.isEmpty())
+                                //resutText.setText(locality + "  " + country);
+                                et_pincode.setText(addressList.get(0).getPostalCode());
+                            et_city.setText(addressList.get(0).getLocality());
+                            et_state.setText(addressList.get(0).getAdminArea());
+                            et_country.setText(addressList.get(0).getCountryName());
+                            et_address_line1.setText(addressList.get(0).getAddressLine(0));
+                            lat_new = piclatlng.latitude;
+                            lon_new = piclatlng.longitude;
+                        }
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+
 
             }
         }
         if (data.hasExtra("address")) {
-            intet_from=data.getStringExtra("address");
+            intet_from = data.getStringExtra("address");
             if (data.getStringExtra("address").equals("address")) {
                 Geocoder geocoder = new Geocoder(ShopPostingActivity.this);
 
@@ -1577,33 +1604,6 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
             }
 
 
-        }
-        if (!data.hasExtra("address"))
-        {
-            com.google.android.libraries.places.api.model.Place placepick = Autocomplete.getPlaceFromIntent(data);
-            LatLng   piclatlng = placepick.getLatLng();
-
-            Geocoder geocoder = new Geocoder(ShopPostingActivity.this);
-
-            try {
-                List<Address> addressList = geocoder.getFromLocation(piclatlng.latitude, piclatlng.longitude, 1);
-                if (addressList != null && addressList.size() > 0) {
-                    String locality = addressList.get(0).getAddressLine(0);
-                    String country = addressList.get(0).getCountryName();
-                    if (!locality.isEmpty() && !country.isEmpty())
-                        //resutText.setText(locality + "  " + country);
-                        et_pincode.setText(addressList.get(0).getPostalCode());
-                    et_city.setText(addressList.get(0).getLocality());
-                    et_state.setText(addressList.get(0).getAdminArea());
-                    et_country.setText(addressList.get(0).getCountryName());
-                    et_address_line1.setText(addressList.get(0).getAddressLine(0));
-                    lat_new=piclatlng.latitude;
-                    lon_new=piclatlng.longitude;
-                }
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
 
 
