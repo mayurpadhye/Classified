@@ -12,6 +12,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
@@ -22,16 +23,21 @@ import android.graphics.Matrix;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Looper;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -74,6 +80,7 @@ import mimosale.com.helperClass.CustomPermissions;
 import mimosale.com.helperClass.CustomUtils;
 import mimosale.com.helperClass.PlaceArrayAdapter;
 import mimosale.com.helperClass.PrefManager;
+import mimosale.com.home.HomeActivity;
 import mimosale.com.map.MapsActivity;
 import mimosale.com.network.RestInterface;
 import mimosale.com.network.RetrofitClient;
@@ -83,10 +90,22 @@ import mimosale.com.preferences.AddNewPrefAdapter;
 import mimosale.com.preferences.AllPrefPojo;
 
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.common.api.Result;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceBuffer;
 import com.google.android.gms.location.places.Places;
@@ -96,6 +115,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.libraries.places.api.model.TypeFilter;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.Autocomplete;
@@ -117,6 +138,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -134,6 +156,7 @@ import retrofit.mime.MultipartTypedOutput;
 import retrofit.mime.TypedFile;
 import retrofit.mime.TypedString;
 
+import static mimosale.com.helperClass.CustomPermissions.MY_PERMISSIONS_REQUEST_LOCATION;
 import static mimosale.com.helperClass.CustomUtils.IMAGE_LIMIT;
 import static mimosale.com.helperClass.CustomUtils.VIDEO_LIMIT;
 import static mimosale.com.helperClass.CustomUtils.showToast;
@@ -175,34 +198,47 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
     double lat_new = 0.0, lon_new = 0.0;
     EditText et_start_date, et_end_date, et_city, et_state, et_country;
     TextView tv_other_details, tv_address_details, tv_pricing_details, tv_shop_details;
-    TextInputLayout tl_shop_name, tl_shop_desc, tl_min_discount, tl_max_discount, tl_min_price, tl_max_price, tl_pincode, tl_city, tl_address_line1;
+    TextInputLayout tl_shop_name, tl_shop_desc,  tl_min_price, tl_max_price, tl_pincode, tl_city, tl_address_line1;
     TextInputLayout tl_address_line2, tl_phone_no, tl_hash_tag, tl_url, tl_end_date, tl_start_date;
-    EditText et_shop_name, et_shop_desc, et_min_discount, et_max_discount, et_min_price, et_max_price, et_pincode,
-            et_address_line1, et_address_line2, et_phone, et_hash_tag, et_url;
+    EditText et_shop_name, et_shop_desc,   et_min_price, et_max_price, et_pincode,
+            et_address_line1, et_address_line2, et_phone, et_hash_tag, et_url;//et_min_discount,et_max_discount tl_min_discount, tl_max_discount,
     String shop_id = "";
+Spinner sp_discount;
+String discount="";
+    private String mLastUpdateTime;
 
-    private static final LatLngBounds BOUNDS_MOUNTAIN_VIEW = new LatLngBounds(
-            new LatLng(37.398160, -122.180831), new LatLng(37.430610, -121.972090));
+    // location updates interval - 10sec
+    private static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
 
+    // fastest updates interval - 5 sec
+    // location updates will be received if another app is requesting the locations
+    // than your app can handle
+    private static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 5000;
+
+    private static final int REQUEST_CHECK_SETTINGS = 100;
+
+
+    // bunch of location related apis
+    private FusedLocationProviderClient mFusedLocationClient;
+    private SettingsClient mSettingsClient;
+    private LocationRequest mLocationRequest;
+    private LocationSettingsRequest mLocationSettingsRequest;
+    private LocationCallback mLocationCallback;
+    private Location mCurrentLocation;
+
+    // boolean flag to toggle the ui
+    private Boolean mRequestingLocationUpdates;
     final Calendar myCalendar = Calendar.getInstance();
     ProgressDialog pDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        String languageToLoad = "ja";
-        Locale locale = new Locale(languageToLoad);
-        Locale.setDefault(locale);
-        Configuration config = new Configuration();
-        config.locale = locale;
-        getBaseContext().getResources().updateConfiguration(config,
-                getBaseContext().getResources().getDisplayMetrics());
-
         setContentView(R.layout.activity_shop_posting);
         context = ShopPostingActivity.this;
-
-
         initView();
+        init();
+        restoreValuesFromBundle(savedInstanceState);
         getAllPrefData();
 
         btn_preview.setOnClickListener(new View.OnClickListener() {
@@ -216,31 +252,32 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
         btn_add_address.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivityForResult(new Intent(ShopPostingActivity.this, MapsActivity.class), 1);
-            }
+                if (checkLocationPermission()) {
+                    startActivityForResult(new Intent(ShopPostingActivity.this, MapsActivity.class), 2);
+                }
+                else
+                    checkLocationPermission();
+
+                }
         });
         btn_current_address.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                // get the last know location from your location manager.
-                if (ActivityCompat.checkSelfPermission(ShopPostingActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(ShopPostingActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    return;
+
+                if (checkLocationPermission())
+                {
+                    startLocationUpdates();
+
                 }
-                Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                // now get the lat/lon from the location and do something with it.
+                else
+                {
+                    checkLocationPermission();
+                }
 
-                lat_new = location.getLatitude();
-                lon_new = location.getLongitude();
 
-                getLocation(lat_new, lon_new);
+
+
+
 
             }
         });
@@ -353,8 +390,66 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
                 Log.d("sda", String.valueOf(fields));
             }
         });
+
+        sp_discount.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+              if (sp_discount.getSelectedItemPosition()==0)
+              {
+                  discount="";
+              }
+              else
+              {
+
+                String[] dis=  sp_discount.getSelectedItem().toString().split(" ",2);
+
+                discount=dis[1].substring(0,2);
+                  Toast.makeText(context, ""+discount, Toast.LENGTH_SHORT).show();
+
+
+              }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                // your code here
+            }
+
+        });
     }//onCreateClose
 
+
+    public boolean checkLocationPermission() {
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+                ActivityCompat.requestPermissions(ShopPostingActivity.this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        MY_PERMISSIONS_REQUEST_LOCATION );
+
+
+            } else {
+
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        MY_PERMISSIONS_REQUEST_LOCATION);
+            }
+
+
+            return false;
+
+        } else {
+            return true;
+        }
+    }
     public void getLocation(double lat, double lon) {
         Geocoder geocoder = new Geocoder(ShopPostingActivity.this);
 
@@ -381,181 +476,13 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
     }
 
 
-    public void getDataByPincode(String pincode) {
-        String tag_string_req = "string_req";
-        URL url1 = null;
-        String url = "https://maps.googleapis.com/maps/api/geocode/json?address='" + pincode + "'&key=AIzaSyC6in7wfj-jFmh4rINHmZ8Pu13IfqNvUYw&region=JP";
-
-        final String encodedURL;
-        try {
-            encodedURL = URLEncoder.encode(url, "UTF-8");
-            url1 = new URL(encodedURL);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
 
 
-        pDialog.show();
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-        StringRequest strReq = new StringRequest(Request.Method.GET,
-                url, new com.android.volley.Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                try {
-                    JSONObject jsonObject = new JSONObject(response);
-
-                    JSONArray results = jsonObject.getJSONArray("results");
-                    for (int k = 0; k < results.length(); k++) {
-                        JSONObject j1 = results.getJSONObject(k);
-                        JSONObject geometry = j1.getJSONObject("geometry");
-                        JSONObject location = geometry.getJSONObject("location");
-                        String lat = location.getString("lat");
-                        String lng = location.getString("lng");
-
-                        //Toast.makeText(context, "" + lat, Toast.LENGTH_SHORT).show();
-
-                        getAddress(lat, lng);
-                    }
 
 
-                } catch (JSONException e) {
-                    pDialog.dismiss();
-                    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-                    e.printStackTrace();
-                }
 
 
-            }
 
-        }, new com.android.volley.Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                pDialog.dismiss();
-                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-            }
-
-        });
-
-// Adding request to request queue
-        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
-    }
-
-
-    public void getAddress(final String lat, final String lng) {
-        lattitude = lat;
-        langitude = lng;
-        lat_new = Double.parseDouble(lat);
-        lon_new = Double.parseDouble(lng);
-
-        String tag_string_req = "string_req";
-        URL url1 = null;
-        String url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lng + "&key=AIzaSyC6in7wfj-jFmh4rINHmZ8Pu13IfqNvUYw";
-        Log.i("ttdtstd", "" + url);
-        final String encodedURL;
-        try {
-            encodedURL = URLEncoder.encode(url, "UTF-8");
-            url1 = new URL(encodedURL);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-
-
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-        StringRequest strReq = new StringRequest(Request.Method.GET,
-                url, new com.android.volley.Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                try {
-                    pDialog.dismiss();
-                    JSONObject jsonObject = new JSONObject(response);
-
-                    JSONArray results = jsonObject.getJSONArray("results");
-                    for (int k = 0; k < results.length(); k++) {
-                        JSONObject j1 = results.getJSONObject(k);
-                        JSONArray address_components = j1.getJSONArray("address_components");
-                        for (int j = 0; j < address_components.length(); j++) {
-                            JSONObject j2 = address_components.getJSONObject(j);
-                            JSONArray types = j2.getJSONArray("types");
-                            for (int i = 0; i < types.length(); i++) {
-                                if (types.get(i).equals("locality")) {
-                                    String long_name = j2.getString("long_name");
-
-                                    et_city.setText(long_name);
-                                }
-                                if (types.get(i).equals("administrative_area_level_1")) {
-                                    String long_name = j2.getString("long_name");
-
-                                    et_state.setText(long_name);
-                                }
-                                if (types.get(i).equals("country")) {
-                                    String long_name = j2.getString("long_name");
-
-                                    et_country.setText(long_name);
-                                }
-                                if (types.get(i).equals("sublocality_level_4")) {
-                                    String long_name = j2.getString("long_name");
-                                    et_address_line1.setText(long_name);
-                                }
-
-                                if (types.get(i).equals("sublocality_level_2")) {
-                                    String long_name = j2.getString("long_name");
-                                    et_address_line1.setText(long_name);
-                                }
-                                if (types.get(i).equals("locality")) {
-                                    String long_name = j2.getString("long_name");
-                                    et_address_line2.setText(long_name);
-                                }
-                            }
-
-                            lat_new = Double.parseDouble(lat);
-                            lon_new = Double.parseDouble(lng);
-                            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-
-                            //getAddress(lat,lng);
-                        }
-                    }
-
-
-                } catch (JSONException e) {
-                    pDialog.dismiss();
-                    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-                    e.printStackTrace();
-                }
-
-
-            }
-
-        }, new com.android.volley.Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                pDialog.dismiss();
-                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-            }
-
-        });
-
-// Adding request to request queue
-        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
-    }
-
-
-    public void slideUp(View view) {
-        view.setVisibility(View.GONE);
-        TranslateAnimation animate = new TranslateAnimation(
-                0,                 // fromXDelta
-                0,                 // toXDelta
-                view.getHeight(),  // fromYDelta
-                0);                // toYDelta
-        animate.setDuration(500);
-        animate.setFillAfter(true);
-        view.startAnimation(animate);
-    }
 
     // slide the view from its current position to below itself
     public void slideDown(View view) {
@@ -643,7 +570,126 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
 
 
     }//
+public void init()
+{
 
+    mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+    mSettingsClient = LocationServices.getSettingsClient(this);
+
+    mLocationCallback = new LocationCallback() {
+        @Override
+        public void onLocationResult(LocationResult locationResult) {
+            super.onLocationResult(locationResult);
+            // location is received
+            mCurrentLocation = locationResult.getLastLocation();
+            mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
+
+           // updateLocationUI();
+        }
+    };
+
+    mRequestingLocationUpdates = false;
+
+    mLocationRequest = new LocationRequest();
+    mLocationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
+    mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
+    mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+    LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
+    builder.addLocationRequest(mLocationRequest);
+    mLocationSettingsRequest = builder.build();
+
+}
+
+    private void restoreValuesFromBundle(Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey("is_requesting_updates")) {
+                mRequestingLocationUpdates = savedInstanceState.getBoolean("is_requesting_updates");
+            }
+
+            if (savedInstanceState.containsKey("last_known_location")) {
+                mCurrentLocation = savedInstanceState.getParcelable("last_known_location");
+            }
+
+            if (savedInstanceState.containsKey("last_updated_on")) {
+                mLastUpdateTime = savedInstanceState.getString("last_updated_on");
+            }
+        }
+
+        updateLocationUI();
+    }
+    private void updateLocationUI() {
+        if (mCurrentLocation != null) {
+            Toast.makeText(context, "Lat: " + mCurrentLocation.getLatitude() + ", " +
+                    "Lng: " + mCurrentLocation.getLongitude(), Toast.LENGTH_SHORT).show();
+lat_new=mCurrentLocation.getLatitude();
+lon_new=mCurrentLocation.getLongitude();
+getLocation(lat_new,lon_new);
+
+            // giving a blink animation on TextView
+
+        }
+
+
+    }
+
+
+    private void startLocationUpdates() {
+        mSettingsClient
+                .checkLocationSettings(mLocationSettingsRequest)
+                .addOnSuccessListener(this, new OnSuccessListener<LocationSettingsResponse>() {
+                    @SuppressLint("MissingPermission")
+                    @Override
+                    public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
+                        Log.i("ShopPoastingMap", "All location settings are satisfied.");
+
+                        Toast.makeText(getApplicationContext(), "Started location updates!", Toast.LENGTH_SHORT).show();
+
+                        //noinspection MissingPermission
+                        mFusedLocationClient.requestLocationUpdates(mLocationRequest,
+                                mLocationCallback, Looper.myLooper());
+
+                        updateLocationUI();
+                    }
+                })
+                .addOnFailureListener(this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        int statusCode = ((ApiException) e).getStatusCode();
+                        switch (statusCode) {
+                            case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                                Log.i("ShopPoastingMap", "Location settings are not satisfied. Attempting to upgrade " +
+                                        "location settings ");
+                                try {
+                                    // Show the dialog by calling startResolutionForResult(), and check the
+                                    // result in onActivityResult().
+                                    ResolvableApiException rae = (ResolvableApiException) e;
+                                    rae.startResolutionForResult(ShopPostingActivity.this, REQUEST_CHECK_SETTINGS);
+                                } catch (IntentSender.SendIntentException sie) {
+                                    Log.i("ShopPoastingMap", "PendingIntent unable to execute request.");
+                                }
+                                break;
+                            case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                                String errorMessage = "Location settings are inadequate, and cannot be " +
+                                        "fixed here. Fix in Settings.";
+                                Log.e("ShopPoastingMap", errorMessage);
+
+                                Toast.makeText(ShopPostingActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+                        }
+
+                        updateLocationUI();
+                    }
+                });
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("is_requesting_updates", mRequestingLocationUpdates);
+        outState.putParcelable("last_known_location", mCurrentLocation);
+        outState.putString("last_updated_on", mLastUpdateTime);
+
+    }
     public void initView() {
         Intent i = getIntent();
         isUpdate = i.getStringExtra("isUpdate");
@@ -658,6 +704,7 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
         mAutocompleteTextView.setThreshold(3);
         tv_url = findViewById(R.id.tv_url);
         ll_shop_details = findViewById(R.id.ll_shop_details);
+        sp_discount = findViewById(R.id.sp_discount);
         et_state = findViewById(R.id.et_state);
         et_country = findViewById(R.id.et_country);
         et_city = findViewById(R.id.et_city);
@@ -674,7 +721,12 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
         radioGroup = (RadioGroup) findViewById(R.id.rg_address);
         radioGroup.clearCheck();
         p_bar = findViewById(R.id.p_bar);
-
+        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>
+                (ShopPostingActivity.this, android.R.layout.simple_spinner_item,
+                        getResources().getStringArray(R.array.discount_array) ); //selected item will look like a spinner set from XML
+        spinnerArrayAdapter.setDropDownViewResource(android.R.layout
+                .simple_spinner_dropdown_item);
+        sp_discount.setAdapter(spinnerArrayAdapter);
 
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @SuppressLint("ResourceType")
@@ -718,8 +770,8 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
         rv_images = findViewById(R.id.rv_images);
         tl_shop_name = findViewById(R.id.tl_shop_name);
         tl_shop_desc = findViewById(R.id.tl_shop_desc);
-        tl_min_discount = findViewById(R.id.tl_min_discount);
-        tl_max_discount = findViewById(R.id.tl_max_discount);
+       // tl_min_discount = findViewById(R.id.tl_min_discount);
+      //  tl_max_discount = findViewById(R.id.tl_max_discount);
         tl_min_price = findViewById(R.id.tl_min_price);
         tl_max_price = findViewById(R.id.tl_max_price);
         tl_city = findViewById(R.id.tl_city);
@@ -730,8 +782,8 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
         tl_url = findViewById(R.id.tl_url);
         et_shop_name = findViewById(R.id.et_shop_name);
         et_shop_desc = findViewById(R.id.et_shop_desc);
-        et_min_discount = findViewById(R.id.et_min_discount);
-        et_max_discount = findViewById(R.id.et_max_discount);
+     //   et_min_discount = findViewById(R.id.et_min_discount);
+      //  et_max_discount = findViewById(R.id.et_max_discount);
         et_min_price = findViewById(R.id.et_min_price);
         et_max_price = findViewById(R.id.et_max_price);
         et_pincode = findViewById(R.id.et_pincode);
@@ -790,13 +842,13 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
                 et_shop_name.setText(shop_name);
                 et_shop_desc.setText(shop_desc);
 
-                if (!min_discount.equals("null")) {
+               /* if (!min_discount.equals("null")) {
                     et_min_discount.setText(min_discount);
                 }
 
                 if (!max_discount.equals("null")) {
                     et_max_discount.setText(max_discount);
-                }
+                }*/
 
                 if (!max_price.equals("null")) {
                     et_max_price.setText(max_price);
@@ -961,16 +1013,16 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
             return;
         }
 
-        if (et_min_discount.getText().toString().length() != 0 || et_max_discount.getText().toString().length() != 0) {
+        if (sp_discount.getSelectedItemPosition()!=0) {
             if (!ll_pricing_visible)
                 slideDown(ll_pricing);
-            if (et_min_discount.getText().toString().trim().length() > et_max_discount.getText().toString().trim().length()) {
+           /* if (et_min_discount.getText().toString().trim().length() > et_max_discount.getText().toString().trim().length()) {
                 tl_min_discount.setError("" + getResources().getString(R.string.min_discount_error));
                 return;
             } else if (et_max_discount.getText().toString().trim().length() < et_min_discount.getText().toString().trim().length()) {
                 tl_max_discount.setError("" + getResources().getString(R.string.max_dis_error));
                 return;
-            }
+            }*/
             if (et_start_date.getText().toString().trim().length() != 0 || et_end_date.getText().toString().trim().length() != 0) {
                 if (!ll_pricing_visible)
                     slideDown(ll_pricing);
@@ -1009,8 +1061,13 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
             i.putExtra("shop_images", jsonElements.toString());
             i.putExtra("shop_desc", et_shop_desc.getText().toString());
             i.putExtra("shop_category", sp_category.getSelectedItem().toString());
-            i.putExtra("min_discount", et_min_discount.getText().toString());
-            i.putExtra("max_discount", et_max_discount.getText().toString());
+            i.putExtra("min_discount", "");
+            i.putExtra("max_discount", "");
+            if (sp_discount.getSelectedItemPosition()!=0)
+            i.putExtra("discount", sp_discount.getSelectedItem().toString());
+            else
+                i.putExtra("discount", "");
+
             i.putExtra("start_date", et_start_date.getText().toString());
             i.putExtra("end_date", et_end_date.getText().toString());
             i.putExtra("min_price", et_min_price.getText().toString());
@@ -1057,6 +1114,8 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
 
     public void updateShopDetails() {
         try {
+
+
             PrefManager.getInstance(context).getUserId();
             p_bar.setVisibility(View.VISIBLE);
 
@@ -1073,8 +1132,9 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
             multipartTypedOutput.addPart("lon", new TypedString("20.22"));
             multipartTypedOutput.addPart("low_price", new TypedString(et_min_price.getText().toString()));
             multipartTypedOutput.addPart("high_price", new TypedString(et_max_price.getText().toString()));
-            multipartTypedOutput.addPart("min_discount", new TypedString(et_min_discount.getText().toString()));
-            multipartTypedOutput.addPart("max_discount", new TypedString(et_max_discount.getText().toString()));
+            multipartTypedOutput.addPart("min_discount", new TypedString(""));
+            multipartTypedOutput.addPart("max_discount", new TypedString(""));
+            multipartTypedOutput.addPart("discount", new TypedString(discount));
             multipartTypedOutput.addPart("phone", new TypedString(et_phone.getText().toString()));
             multipartTypedOutput.addPart("hash_tags", new TypedString(et_hash_tag.getText().toString()));
             multipartTypedOutput.addPart("description", new TypedString(et_shop_desc.getText().toString()));
@@ -1165,8 +1225,9 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
             multipartTypedOutput.addPart("lon", new TypedString("" + lon_new));
             multipartTypedOutput.addPart("low_price", new TypedString(et_min_price.getText().toString()));
             multipartTypedOutput.addPart("high_price", new TypedString(et_max_price.getText().toString()));
-            multipartTypedOutput.addPart("min_discount", new TypedString(et_min_discount.getText().toString()));
-            multipartTypedOutput.addPart("max_discount", new TypedString(et_max_discount.getText().toString()));
+            multipartTypedOutput.addPart("min_discount", new TypedString(""));
+            multipartTypedOutput.addPart("max_discount", new TypedString(""));
+            multipartTypedOutput.addPart("discount", new TypedString(discount));
             multipartTypedOutput.addPart("phone", new TypedString(et_phone.getText().toString()));
             multipartTypedOutput.addPart("hash_tags", new TypedString(et_hash_tag.getText().toString()));
             multipartTypedOutput.addPart("description", new TypedString(et_shop_desc.getText().toString()));
@@ -1608,6 +1669,10 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
 
 
     }
+
+
+
+
 
     public class ImageCompressAsyncTask extends AsyncTask<List<String>, String, String> {
         Context mContext;

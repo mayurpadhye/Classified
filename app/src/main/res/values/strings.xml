@@ -294,4 +294,19 @@
     <string name="add_addess">Add Address</string>
     <string name="discount_text">Discount</string>
     <string name="mimo_discount">MIMO discount coupon</string>
+    <string name="shop_now">Shop Now</string>
+    <string name="claim_now">Claim Now</string>
+    <string name="upto">Upto</string>
+    <string-array name="discount_array">
+        <item>Select Discount</item>
+        <item>Upto 10%</item>
+        <item>Upto 20%</item>
+        <item>Upto 30%</item>
+        <item>Upto 40%</item>
+        <item>Upto 50%</item>
+        <item>Upto 60%</item>
+        <item>Upto 70%</item>
+        <item>Upto 80%</item>
+        <item>Upto 90%</item>
+    </string-array>
 </resources>

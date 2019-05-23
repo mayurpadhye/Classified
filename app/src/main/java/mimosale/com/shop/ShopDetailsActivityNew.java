@@ -64,7 +64,8 @@ TextView toolbar_title;
     private static int currentPage = 0;
     private static int NUM_PAGES = 0;
     ViewPager view_pager_shop_details;
-
+TextView tv_complete_address;
+ImageView iv_navigate;
     // TextView tv_photo_count;
     LinearLayout ll_highlight, ll_info;
     TextView tv_discount, tv_price_range, tv_price_range_detail, tv_location, tv_website, tv_category, tv_tag, tv_shop_name;
@@ -72,6 +73,7 @@ TextView toolbar_title;
     String lat = "", lan = "";
     //  NestedScrollView nv_main;
     ProgressDialog pDialog;
+    TextView tv_desc;
     List<String> shopImagesPojoList = new ArrayList<>();
     List<AllProductPojo> allProductPojoList = new ArrayList<>();
 
@@ -79,12 +81,13 @@ TextView toolbar_title;
     private GoogleMap gmap;
 
     RelativeLayout rl_follow;
-    TextView tv_follow_text;
+    TextView tv_follow_text,tv_phone_no;
     String phone = "";
     RelativeLayout rl_like;
     TextView tv_photos;
     String status_follow = "follow";
     ImageView iv_follow;
+double lati=0.0,longi=0.0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -102,6 +105,17 @@ TextView toolbar_title;
                 if (!phone.equals("")) {
                     phoneCallPermission();
 
+                }
+
+            }
+        });
+        iv_navigate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (lati!=0.0&& longi!=0.0)
+                {
+                    Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse("http://maps.google.com/maps?daddr="+lati+","+longi+""));
+                    startActivity(intent);
                 }
 
             }
@@ -288,13 +302,22 @@ TextView toolbar_title;
                                 String pincode = j1.getString("pincode");
                                 String lat = j1.getString("lat");
                                 String lon = j1.getString("lon");
+                                lati=Double.parseDouble(lat);
+                                longi=Double.parseDouble(lon);
+
+
                                 String low_price = j1.getString("low_price");
                                 String high_price = j1.getString("high_price");
-                                String min_discount = j1.getString("min_discount");
-                                String max_discount = j1.getString("max_discount");
+                                String discount = j1.getString("discount");
                                 String start_date = j1.getString("start_date");
                                 String end_date = j1.getString("end_date");
                                 String followStatus = j1.getString("followStatus");
+                                tv_complete_address.setText(address_line1+" "+address_line2);
+                                if (!discount.equals("null") || !discount.equals(""))
+                                {
+                                    tv_discount.setText(""+discount+"%");
+                                }
+
                                 if (followStatus.equals("1")) {
                                     tv_follow_text.setText("Unfollow");
                                     status_follow = "unfollow";
@@ -312,6 +335,8 @@ TextView toolbar_title;
                                 String web_url = j1.getString("web_url");
                                 JSONArray shop_images = j1.getJSONArray("shop_images");
                                 //  shopImagesPojoList.clear();
+                                tv_desc.setText(description);
+                                tv_phone_no.setText(phone);
 
 
 
@@ -414,6 +439,10 @@ TextView toolbar_title;
 
 
         tv_follow_text = findViewById(R.id.tv_follow_text);
+        tv_phone_no = findViewById(R.id.tv_phone_no);
+        tv_desc = findViewById(R.id.tv_desc);
+        tv_complete_address = findViewById(R.id.tv_complete_address);
+        iv_navigate = findViewById(R.id.iv_navigate);
         toolbar_title = findViewById(R.id.toolbar_title);
         toolbar_title.setText(getIntent().getStringExtra("shop_name"));
         iv_follow = findViewById(R.id.iv_follow);

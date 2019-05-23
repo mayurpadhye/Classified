@@ -132,8 +132,22 @@
                 </LinearLayout>
                 <LinearLayout
                     android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_margin="4dp"
+                    android:background="@drawable/edit_back"
+                    android:minHeight="35dp">
+
+                    <Spinner
+                        android:id="@+id/sp_discount"
+                        android:layout_width="match_parent"
+                        android:layout_height="35dp"
+                        android:layout_margin="3dp"></Spinner>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
+                    android:visibility="gone"
                     >
                     <android.support.design.widget.TextInputLayout
                         android:id="@+id/tl_min_discount"

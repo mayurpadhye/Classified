@@ -118,8 +118,8 @@ public class ShopSaleFragment extends Fragment {
                                 String lon = j1.getString("lon");
                                 String low_price = j1.getString("low_price");
                                 String high_price = j1.getString("high_price");
-                                String min_discount = j1.getString("min_discount");
-                                String max_discount = j1.getString("max_discount");
+                                String discount = j1.getString("discount");
+
                                 String start_date = j1.getString("start_date");
                                 String end_date = j1.getString("end_date");
                                 String phone = j1.getString("phone");
@@ -145,7 +145,7 @@ public class ShopSaleFragment extends Fragment {
                                     JSONObject j2=shop_images.getJSONObject(k);
                                     image = j2.getString("image");
                                 }*/
-                                allShopSaleList.add(new ShopSaleModel(id,name,user_id,preference_id,address_line1,address_line2,city,state,country,pincode,lat,lon,low_price,high_price,min_discount,max_discount,start_date,end_date,phone,hash_tags,description,web_url,image1,image2,"shop"));
+                                allShopSaleList.add(new ShopSaleModel(id,name,user_id,preference_id,address_line1,address_line2,city,state,country,pincode,lat,lon,low_price,high_price,discount,start_date,end_date,phone,hash_tags,description,web_url,image1,image2,"shop"));
 
                             }
 

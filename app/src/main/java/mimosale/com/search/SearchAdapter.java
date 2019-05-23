@@ -76,8 +76,8 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.MyViewHold
       //  Glide.with(mctx).setDefaultRequestOptions(requestOptions).load(WebServiceURLs.SHOP_IMAGE + items.getImage2()).into(holder.iv_product_image2);
         holder.tv_price_range.setText("" + items.getLow_price() + "-" + items.getHigh_price());
         holder.tv_desc.setText(items.getDescription());
-        if (!items.getMin_discount().equals("null") || !items.getMax_discount().equals("null"))
-            holder.tv_discount.setText(items.getMin_discount() + "% - " + items.getMax_discount() + "%");
+        if (!items.getDiscount().equals("null") )
+            holder.tv_discount.setText(items.getDiscount() + "%");
         else
         {
             holder.tv_discount.setVisibility(View.GONE);

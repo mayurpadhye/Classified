@@ -90,7 +90,7 @@ EditText et_search;
                                 String preference_id = j1.getString("preference_id");
 
                                 String address_line1="",address_line2="",state="",country="";
-                                String pincode="",lat="",lon="",low_price="",high_price="",min_discount="",max_discount="",start_date="";
+                                String pincode="",lat="",lon="",low_price="",high_price="",discount="",start_date="";
                                 String end_date="",phone="",hash_tags="",web_url="",description="",type="",city="";
                                 if (j1.has("address_line1"))
                                 {
@@ -132,13 +132,9 @@ EditText et_search;
                                 {
                                     high_price = j1.getString("high_price");
                                 }
-                                if (j1.has("min_discount"))
+                                if (j1.has("discount"))
                                 {
-                                    min_discount = j1.getString("min_discount");
-                                }
-                                if (j1.has("max_discount"))
-                                {
-                                    max_discount = j1.getString("max_discount");
+                                    discount = j1.getString("discount");
                                 }
 
                                 if (j1.has("start_date"))
@@ -187,7 +183,7 @@ EditText et_search;
 
                                 String image = "";
 
-                                allShopSaleList.add(new ShopSaleModel(id,name,user_id,preference_id,address_line1,address_line2,city,state,country,pincode,lat,lon,low_price,high_price,min_discount,max_discount,start_date,end_date,phone,hash_tags,description,web_url,image1,image2,type));
+                                allShopSaleList.add(new ShopSaleModel(id,name,user_id,preference_id,address_line1,address_line2,city,state,country,pincode,lat,lon,low_price,high_price,discount,start_date,end_date,phone,hash_tags,description,web_url,image1,image2,type));
 
                             }
 
