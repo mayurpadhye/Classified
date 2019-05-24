@@ -66,7 +66,7 @@ public class ShopSlidingImagesAdapter  extends PagerAdapter {
 
 
             Picasso.with(context).load(IMAGES.get(position).getPath()).into(imageView);
-
+             imageView.setImageBitmap(IMAGES.get(position).getBitmap());
 
 
             Log.i("imagePathhhhhBitmap",IMAGES.get(position).getPath());

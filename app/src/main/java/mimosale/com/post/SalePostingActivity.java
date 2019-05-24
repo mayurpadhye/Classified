@@ -556,7 +556,7 @@ public class SalePostingActivity extends AppCompatActivity {
             String sale_name = i.getStringExtra("sale_name");
             String desc = i.getStringExtra("desc");
             String price = i.getStringExtra("price");
-            String sale_id = i.getStringExtra("sale_id");
+             String sale_id = i.getStringExtra("sale_id");
             String min_discount = i.getStringExtra("min_discount");
             String max_discount = i.getStringExtra("max_discount");
             String hash_tag = i.getStringExtra("hash_tag");

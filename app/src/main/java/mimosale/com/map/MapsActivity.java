@@ -404,6 +404,19 @@ double lat_new,lon_new;
             }
         }
 
+    @Override
+    public void onBackPressed() {
 
+        if (lat_new!=0.0&&lon_new!=0.0)
+        {
 
+            Intent intent = new Intent();
+            intent.putExtra("lat",  lat_new);
+            intent.putExtra("lon",  lon_new);
+            intent.putExtra("address",  "address");
+            setResult(RESULT_OK, intent);
+            finish();
+        }
+        super.onBackPressed();
+    }
 }

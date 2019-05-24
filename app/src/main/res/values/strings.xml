@@ -297,6 +297,7 @@
     <string name="shop_now">Shop Now</string>
     <string name="claim_now">Claim Now</string>
     <string name="upto">Upto</string>
+    <string name="update">Update</string>
     <string-array name="discount_array">
         <item>Select Discount</item>
         <item>Upto 10%</item>

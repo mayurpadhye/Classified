@@ -43,6 +43,7 @@ import org.json.JSONObject;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import mimosale.com.shop.ShopDetailsActivityNew;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -92,7 +93,7 @@ public class FollowingShopAdapter extends RecyclerView.Adapter<FollowingShopAdap
          holder.cv_main.setOnClickListener(new View.OnClickListener() {
              @Override
              public void onClick(View v) {
-                 mctx.startActivity(new Intent(mctx,ShopDetailActivity.class).putExtra("shop_id",items.getShop_id()));
+                 mctx.startActivity(new Intent(mctx,ShopDetailsActivityNew.class).putExtra("shop_id",items.getShop_id()));
              }
          });
 

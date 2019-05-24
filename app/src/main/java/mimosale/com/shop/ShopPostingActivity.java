@@ -143,6 +143,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -164,6 +165,7 @@ import static mimosale.com.helperClass.CustomUtils.showToast;
 public class ShopPostingActivity extends AppCompatActivity implements View.OnClickListener {
     public ArrayList<File> imageFiles;
     Button btn_upload;
+    String pref_id1 = "";
     RecyclerView rv_images;
     RadioGroup radioGroup;
     Switch switchbutton_discount, switchbutton_pincode;
@@ -198,13 +200,13 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
     double lat_new = 0.0, lon_new = 0.0;
     EditText et_start_date, et_end_date, et_city, et_state, et_country;
     TextView tv_other_details, tv_address_details, tv_pricing_details, tv_shop_details;
-    TextInputLayout tl_shop_name, tl_shop_desc,  tl_min_price, tl_max_price, tl_pincode, tl_city, tl_address_line1;
+    TextInputLayout tl_shop_name, tl_shop_desc, tl_min_price, tl_max_price, tl_pincode, tl_city, tl_address_line1;
     TextInputLayout tl_address_line2, tl_phone_no, tl_hash_tag, tl_url, tl_end_date, tl_start_date;
-    EditText et_shop_name, et_shop_desc,   et_min_price, et_max_price, et_pincode,
+    EditText et_shop_name, et_shop_desc, et_min_price, et_max_price, et_pincode,
             et_address_line1, et_address_line2, et_phone, et_hash_tag, et_url;//et_min_discount,et_max_discount tl_min_discount, tl_max_discount,
     String shop_id = "";
-Spinner sp_discount;
-String discount="";
+    Spinner sp_discount;
+    String discount = "";
     private String mLastUpdateTime;
 
     // location updates interval - 10sec
@@ -253,30 +255,67 @@ String discount="";
             @Override
             public void onClick(View v) {
                 if (checkLocationPermission()) {
-                    startActivityForResult(new Intent(ShopPostingActivity.this, MapsActivity.class), 2);
-                }
-                else
+
+
+                    mSettingsClient
+                            .checkLocationSettings(mLocationSettingsRequest)
+                            .addOnSuccessListener(ShopPostingActivity.this, new OnSuccessListener<LocationSettingsResponse>() {
+                                @SuppressLint("MissingPermission")
+                                @Override
+                                public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
+                                    Log.i("ShopPoastingMap", "All location settings are satisfied.");
+
+
+                                    //noinspection MissingPermission
+                                    startActivityForResult(new Intent(ShopPostingActivity.this, MapsActivity.class), 2);
+                                }
+                            })
+                            .addOnFailureListener(ShopPostingActivity.this, new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    int statusCode = ((ApiException) e).getStatusCode();
+                                    switch (statusCode) {
+                                        case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                                            Log.i("ShopPoastingMap", "Location settings are not satisfied. Attempting to upgrade " +
+                                                    "location settings ");
+                                            try {
+                                                // Show the dialog by calling startResolutionForResult(), and check the
+                                                // result in onActivityResult().
+                                                ResolvableApiException rae = (ResolvableApiException) e;
+                                                rae.startResolutionForResult(ShopPostingActivity.this, REQUEST_CHECK_SETTINGS);
+                                            } catch (IntentSender.SendIntentException sie) {
+                                                Log.i("ShopPoastingMap", "PendingIntent unable to execute request.");
+                                            }
+                                            break;
+                                        case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                                            String errorMessage = "Location settings are inadequate, and cannot be " +
+                                                    "fixed here. Fix in Settings.";
+                                            Log.e("ShopPoastingMap", errorMessage);
+
+                                            Toast.makeText(ShopPostingActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+                                    }
+
+                                    updateLocationUI();
+                                }
+                            });
+
+
+                } else
                     checkLocationPermission();
 
-                }
+            }
         });
         btn_current_address.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                if (checkLocationPermission())
-                {
-                    startLocationUpdates();
+                if (checkLocationPermission()) {
+                    init();
 
-                }
-                else
-                {
+
+                } else {
                     checkLocationPermission();
                 }
-
-
-
-
 
 
             }
@@ -394,20 +433,17 @@ String discount="";
         sp_discount.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-              if (sp_discount.getSelectedItemPosition()==0)
-              {
-                  discount="";
-              }
-              else
-              {
+                if (sp_discount.getSelectedItemPosition() == 0) {
+                    discount = "";
+                } else {
 
-                String[] dis=  sp_discount.getSelectedItem().toString().split(" ",2);
+                    String[] dis = sp_discount.getSelectedItem().toString().split(" ", 2);
 
-                discount=dis[1].substring(0,2);
-                  Toast.makeText(context, ""+discount, Toast.LENGTH_SHORT).show();
+                    discount = dis[1].substring(0, 2);
+                    Toast.makeText(context, "" + discount, Toast.LENGTH_SHORT).show();
 
 
-              }
+                }
             }
 
             @Override
@@ -416,6 +452,11 @@ String discount="";
             }
 
         });
+        if (!discount.equals(""))
+        {
+            switchbutton_discount.setChecked(true);
+            ll_discount.setVisibility(View.VISIBLE);
+        }
     }//onCreateClose
 
 
@@ -433,7 +474,7 @@ String discount="";
                 // sees the explanation, try again to request the permission.
                 ActivityCompat.requestPermissions(ShopPostingActivity.this,
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION );
+                        MY_PERMISSIONS_REQUEST_LOCATION);
 
 
             } else {
@@ -450,6 +491,7 @@ String discount="";
             return true;
         }
     }
+
     public void getLocation(double lat, double lon) {
         Geocoder geocoder = new Geocoder(ShopPostingActivity.this);
 
@@ -474,14 +516,6 @@ String discount="";
             e.printStackTrace();
         }
     }
-
-
-
-
-
-
-
-
 
 
     // slide the view from its current position to below itself
@@ -544,7 +578,12 @@ String discount="";
                                     allPrefList
                             );
 
+
                             sp_category.setAdapter(adapter);
+                            if (allPrefIds.contains(pref_id1)) {
+                                sp_category.setSelection(allPrefIds.indexOf(pref_id1));
+                            }
+
 
                         }
 
@@ -570,36 +609,36 @@ String discount="";
 
 
     }//
-public void init()
-{
 
-    mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-    mSettingsClient = LocationServices.getSettingsClient(this);
+    public void init() {
 
-    mLocationCallback = new LocationCallback() {
-        @Override
-        public void onLocationResult(LocationResult locationResult) {
-            super.onLocationResult(locationResult);
-            // location is received
-            mCurrentLocation = locationResult.getLastLocation();
-            mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        mSettingsClient = LocationServices.getSettingsClient(this);
 
-           // updateLocationUI();
-        }
-    };
+        mLocationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                super.onLocationResult(locationResult);
+                // location is received
+                mCurrentLocation = locationResult.getLastLocation();
+                mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
 
-    mRequestingLocationUpdates = false;
+                // updateLocationUI();
+            }
+        };
 
-    mLocationRequest = new LocationRequest();
-    mLocationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
-    mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
-    mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mRequestingLocationUpdates = false;
 
-    LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
-    builder.addLocationRequest(mLocationRequest);
-    mLocationSettingsRequest = builder.build();
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
+        mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
-}
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
+        builder.addLocationRequest(mLocationRequest);
+        mLocationSettingsRequest = builder.build();
+        startLocationUpdates();
+    }
 
     private void restoreValuesFromBundle(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
@@ -618,13 +657,13 @@ public void init()
 
         updateLocationUI();
     }
+
     private void updateLocationUI() {
         if (mCurrentLocation != null) {
-            Toast.makeText(context, "Lat: " + mCurrentLocation.getLatitude() + ", " +
-                    "Lng: " + mCurrentLocation.getLongitude(), Toast.LENGTH_SHORT).show();
-lat_new=mCurrentLocation.getLatitude();
-lon_new=mCurrentLocation.getLongitude();
-getLocation(lat_new,lon_new);
+
+            lat_new = mCurrentLocation.getLatitude();
+            lon_new = mCurrentLocation.getLongitude();
+            getLocation(lat_new, lon_new);
 
             // giving a blink animation on TextView
 
@@ -633,6 +672,49 @@ getLocation(lat_new,lon_new);
 
     }
 
+    public void find_Location() {
+        Log.d("Find Location", "in find_location");
+
+        String location_context = Context.LOCATION_SERVICE;
+        LocationManager locationManager = (LocationManager) getSystemService(location_context);
+        List<String> providers = locationManager.getProviders(true);
+        for (String provider : providers) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
+            locationManager.requestLocationUpdates(provider, 1000, 0,
+                    new LocationListener() {
+
+                        public void onLocationChanged(Location location) {
+                        }
+
+                        public void onProviderDisabled(String provider) {
+                        }
+
+                        public void onProviderEnabled(String provider) {
+                        }
+
+                        public void onStatusChanged(String provider, int status,
+                                                    Bundle extras) {
+                        }
+                    });
+            Location location = locationManager.getLastKnownLocation(provider);
+            if (location != null) {
+                double latitude = location.getLatitude();
+                double longitude = location.getLongitude();
+
+                //   addr = ConvertPointToLocation(latitude, longitude);
+                //String temp_c = SendToUrl(addr);
+            }
+        }
+    }
 
     private void startLocationUpdates() {
         mSettingsClient
@@ -643,12 +725,11 @@ getLocation(lat_new,lon_new);
                     public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
                         Log.i("ShopPoastingMap", "All location settings are satisfied.");
 
-                        Toast.makeText(getApplicationContext(), "Started location updates!", Toast.LENGTH_SHORT).show();
 
                         //noinspection MissingPermission
                         mFusedLocationClient.requestLocationUpdates(mLocationRequest,
                                 mLocationCallback, Looper.myLooper());
-
+                        find_Location();
                         updateLocationUI();
                     }
                 })
@@ -690,6 +771,7 @@ getLocation(lat_new,lon_new);
         outState.putString("last_updated_on", mLastUpdateTime);
 
     }
+
     public void initView() {
         Intent i = getIntent();
         isUpdate = i.getStringExtra("isUpdate");
@@ -723,7 +805,7 @@ getLocation(lat_new,lon_new);
         p_bar = findViewById(R.id.p_bar);
         ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>
                 (ShopPostingActivity.this, android.R.layout.simple_spinner_item,
-                        getResources().getStringArray(R.array.discount_array) ); //selected item will look like a spinner set from XML
+                        getResources().getStringArray(R.array.discount_array)); //selected item will look like a spinner set from XML
         spinnerArrayAdapter.setDropDownViewResource(android.R.layout
                 .simple_spinner_dropdown_item);
         sp_discount.setAdapter(spinnerArrayAdapter);
@@ -770,8 +852,8 @@ getLocation(lat_new,lon_new);
         rv_images = findViewById(R.id.rv_images);
         tl_shop_name = findViewById(R.id.tl_shop_name);
         tl_shop_desc = findViewById(R.id.tl_shop_desc);
-       // tl_min_discount = findViewById(R.id.tl_min_discount);
-      //  tl_max_discount = findViewById(R.id.tl_max_discount);
+        // tl_min_discount = findViewById(R.id.tl_min_discount);
+        //  tl_max_discount = findViewById(R.id.tl_max_discount);
         tl_min_price = findViewById(R.id.tl_min_price);
         tl_max_price = findViewById(R.id.tl_max_price);
         tl_city = findViewById(R.id.tl_city);
@@ -782,8 +864,8 @@ getLocation(lat_new,lon_new);
         tl_url = findViewById(R.id.tl_url);
         et_shop_name = findViewById(R.id.et_shop_name);
         et_shop_desc = findViewById(R.id.et_shop_desc);
-     //   et_min_discount = findViewById(R.id.et_min_discount);
-      //  et_max_discount = findViewById(R.id.et_max_discount);
+        //   et_min_discount = findViewById(R.id.et_min_discount);
+        //  et_max_discount = findViewById(R.id.et_max_discount);
         et_min_price = findViewById(R.id.et_min_price);
         et_max_price = findViewById(R.id.et_max_price);
         et_pincode = findViewById(R.id.et_pincode);
@@ -822,8 +904,7 @@ getLocation(lat_new,lon_new);
 
                 String shop_desc = i.getStringExtra("shop_desc");
                 String shop_category = i.getStringExtra("shop_category");
-                String min_discount = i.getStringExtra("min_discount");
-                String max_discount = i.getStringExtra("max_discount");
+                String discount = i.getStringExtra("discount");
                 String start_date = i.getStringExtra("start_date");
                 String end_date = i.getStringExtra("end_date");
                 String min_price = i.getStringExtra("min_price");
@@ -837,7 +918,25 @@ getLocation(lat_new,lon_new);
                 String phone_number = i.getStringExtra("phone_number");
                 String hash_tag = i.getStringExtra("hash_tag");
                 String web_url = i.getStringExtra("web_url");
+                pref_id1 = i.getStringExtra("pref_id");
                 shop_id = i.getStringExtra("shop_id");
+                Toast.makeText(context, "" + allPrefIds.size(), Toast.LENGTH_SHORT).show();
+                List<String> stringList = new ArrayList<>();
+                List<String> Lines = Arrays.asList(getResources().getStringArray(R.array.discount_array));
+                if (!discount.equals("")) {
+                    switchbutton_discount.setChecked(true);
+                    ll_discount.setVisibility(View.VISIBLE);
+                    for (int k = 0; k < Lines.size(); k++) {
+                        if (Lines.get(k).contains(discount)) {
+                            sp_discount.setSelection(k);
+                            break;
+                        }
+                    }
+                }
+
+
+//sp_discount.setSelection();
+
 
                 et_shop_name.setText(shop_name);
                 et_shop_desc.setText(shop_desc);
@@ -1013,7 +1112,7 @@ getLocation(lat_new,lon_new);
             return;
         }
 
-        if (sp_discount.getSelectedItemPosition()!=0) {
+        if (sp_discount.getSelectedItemPosition() != 0) {
             if (!ll_pricing_visible)
                 slideDown(ll_pricing);
            /* if (et_min_discount.getText().toString().trim().length() > et_max_discount.getText().toString().trim().length()) {
@@ -1055,20 +1154,23 @@ getLocation(lat_new,lon_new);
             }
 
         } else {
-            Intent i = new Intent(ShopPostingActivity.this, ShopPreviewActivity.class);
+            Intent i = new Intent(ShopPostingActivity.this, ShopPostingPreviewNew.class);
             i.putExtra("shop_name", et_shop_name.getText().toString());
+            i.putExtra("type", type);
             JsonArray jsonElements = (JsonArray) new Gson().toJsonTree(image_thumbnails);
             i.putExtra("shop_images", jsonElements.toString());
             i.putExtra("shop_desc", et_shop_desc.getText().toString());
             i.putExtra("shop_category", sp_category.getSelectedItem().toString());
             i.putExtra("min_discount", "");
             i.putExtra("max_discount", "");
-            if (sp_discount.getSelectedItemPosition()!=0)
-            i.putExtra("discount", sp_discount.getSelectedItem().toString());
+            if (sp_discount.getSelectedItemPosition() != 0)
+                i.putExtra("discount", sp_discount.getSelectedItem().toString());
             else
                 i.putExtra("discount", "");
 
             i.putExtra("start_date", et_start_date.getText().toString());
+            i.putExtra("lati", lat_new);
+            i.putExtra("longi", lon_new);
             i.putExtra("end_date", et_end_date.getText().toString());
             i.putExtra("min_price", et_min_price.getText().toString());
             i.putExtra("max_price", et_max_price.getText().toString());
@@ -1636,42 +1738,43 @@ getLocation(lat_new,lon_new);
 
             }
         }
-        if (data.hasExtra("address")) {
-            intet_from = data.getStringExtra("address");
-            if (data.getStringExtra("address").equals("address")) {
-                Geocoder geocoder = new Geocoder(ShopPostingActivity.this);
+        try {
+            if (data.hasExtra("address")) {
+                intet_from = data.getStringExtra("address");
+                if (data.getStringExtra("address").equals("address")) {
+                    Geocoder geocoder = new Geocoder(ShopPostingActivity.this);
 
-                try {
-                    List<Address> addressList = geocoder.getFromLocation(data.getDoubleExtra("lat", 0.0), data.getDoubleExtra("lon", 0.0), 1);
-                    if (addressList != null && addressList.size() > 0) {
-                        String locality = addressList.get(0).getAddressLine(0);
-                        String country = addressList.get(0).getCountryName();
-                        if (!locality.isEmpty() && !country.isEmpty())
-                            //resutText.setText(locality + "  " + country);
-                            ll_address_details.setVisibility(View.VISIBLE);
-                        et_pincode.setText(addressList.get(0).getPostalCode());
-                        et_city.setText(addressList.get(0).getLocality());
-                        et_state.setText(addressList.get(0).getAdminArea());
-                        et_country.setText(addressList.get(0).getCountryName());
-                        et_address_line1.setText(addressList.get(0).getAddressLine(0));
-                        lat_new = data.getDoubleExtra("lat", 0.0);
-                        lon_new = data.getDoubleExtra("lon", 0.0);
+                    try {
+                        List<Address> addressList = geocoder.getFromLocation(data.getDoubleExtra("lat", 0.0), data.getDoubleExtra("lon", 0.0), 1);
+                        if (addressList != null && addressList.size() > 0) {
+                            String locality = addressList.get(0).getAddressLine(0);
+                            String country = addressList.get(0).getCountryName();
+                            if (!locality.isEmpty() && !country.isEmpty())
+                                //resutText.setText(locality + "  " + country);
+                                ll_address_details.setVisibility(View.VISIBLE);
+                            et_pincode.setText(addressList.get(0).getPostalCode());
+                            et_city.setText(addressList.get(0).getLocality());
+                            et_state.setText(addressList.get(0).getAdminArea());
+                            et_country.setText(addressList.get(0).getCountryName());
+                            et_address_line1.setText(addressList.get(0).getAddressLine(0));
+                            lat_new = data.getDoubleExtra("lat", 0.0);
+                            lon_new = data.getDoubleExtra("lon", 0.0);
+                        }
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
 
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
 
+
             }
-
-
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
 
     }
-
-
-
 
 
     public class ImageCompressAsyncTask extends AsyncTask<List<String>, String, String> {

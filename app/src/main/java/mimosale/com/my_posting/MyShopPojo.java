@@ -4,10 +4,10 @@ public class MyShopPojo {
 
     String product_name;
 
-    String id,name,user_id,preference_id,address_line1,address_line2,city,state,country,pincode,lat,lon,low_price,high_price,min_discount,max_discount;
+    String id,name,user_id,preference_id,address_line1,address_line2,city,state,country,pincode,lat,lon,low_price,high_price,discount;
     String start_date,end_date,phone,hash_tags,description,web_url,image,image2;
 
-    public MyShopPojo(String id, String name, String user_id, String preference_id, String address_line1, String address_line2, String city, String state, String country, String pincode, String lat, String lon, String low_price, String high_price, String min_discount, String max_discount, String start_date, String end_date, String phone, String hash_tags, String description, String web_url,String image,String image2) {
+    public MyShopPojo(String id, String name, String user_id, String preference_id, String address_line1, String address_line2, String city, String state, String country, String pincode, String lat, String lon, String low_price, String high_price, String discount, String start_date, String end_date, String phone, String hash_tags, String description, String web_url,String image,String image2) {
         this.id = id;
         this.name = name;
         this.user_id = user_id;
@@ -23,8 +23,8 @@ public class MyShopPojo {
         this.lon = lon;
         this.low_price = low_price;
         this.high_price = high_price;
-        this.min_discount = min_discount;
-        this.max_discount = max_discount;
+        this.discount = discount;
+
         this.start_date = start_date;
         this.end_date = end_date;
         this.phone = phone;
@@ -32,6 +32,14 @@ public class MyShopPojo {
         this.description = description;
         this.web_url = web_url;
         this.image=image;
+    }
+
+    public String getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(String discount) {
+        this.discount = discount;
     }
 
     public String getImage2() {
@@ -164,22 +172,6 @@ public class MyShopPojo {
 
     public void setHigh_price(String high_price) {
         this.high_price = high_price;
-    }
-
-    public String getMin_discount() {
-        return min_discount;
-    }
-
-    public void setMin_discount(String min_discount) {
-        this.min_discount = min_discount;
-    }
-
-    public String getMax_discount() {
-        return max_discount;
-    }
-
-    public void setMax_discount(String max_discount) {
-        this.max_discount = max_discount;
     }
 
     public String getStart_date() {

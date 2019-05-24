@@ -87,8 +87,7 @@ public class FollowingShopActivity extends AppCompatActivity {
                                 String lon = j1.getString("lon");
                                 String low_price = j1.getString("low_price");
                                 String high_price = j1.getString("high_price");
-                                String min_discount = j1.getString("min_discount");
-                                String max_discount = j1.getString("max_discount");
+                                String discount = j1.getString("discount");
                                 String start_date = j1.getString("start_date");
                                 String end_date = j1.getString("end_date");
                                 String phone = j1.getString("phone");

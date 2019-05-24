@@ -94,7 +94,7 @@ ProgressBar p_bar;
         Picasso.with(mctx).load(WebServiceURLs.SHOP_IMAGE + items.getImage2()).into(holder.iv_product_image2);
         holder.tv_price_range.setText("" + items.getLow_price() + "-" + items.getHigh_price());
         holder.tv_desc.setText(items.getDescription());
-        holder.tv_discount.setText(items.getMin_discount() + "% - " + items.getMax_discount() + "%");
+        holder.tv_discount.setText(items.getDiscount()+"%");
         if (position == 0) {
             holder.ratingBar.setRating(2.5f);
         }
@@ -156,8 +156,8 @@ ProgressBar p_bar;
 
                     i.putExtra("shop_desc",allProductPojoList.get(position).getDescription());
                     i.putExtra("shop_category","");
-                    i.putExtra("min_discount",allProductPojoList.get(position).getMin_discount());
-                    i.putExtra("max_discount",allProductPojoList.get(position).getMax_discount());
+
+                    i.putExtra("discount",allProductPojoList.get(position).getDiscount());
                     i.putExtra("start_date",allProductPojoList.get(position).getStart_date());
                     i.putExtra("end_date",allProductPojoList.get(position).getEnd_date());
                     i.putExtra("min_price",allProductPojoList.get(position).getLow_price());
