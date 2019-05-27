@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.RatingBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -21,6 +22,7 @@ import mimosale.com.R;
 
 import mimosale.com.home.shop_sale.ShopSaleModel;
 import mimosale.com.network.WebServiceURLs;
+import mimosale.com.preferences.MyPreferencesActivity;
 import mimosale.com.products.ProductDetailsActivity;
 import mimosale.com.shop.ShopDetailActivity;
 import mimosale.com.shop.ShopDetailsActivityNew;
@@ -49,62 +51,94 @@ public class ShopSaleAdapter extends RecyclerView.Adapter<ShopSaleAdapter.MyView
     @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.row_shop_sale, parent, false);
+        View itemView;
+        if(viewType == R.layout.row_shop_sale){
+            itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_shop_sale, parent, false);
+        }
+
+        else {
+            itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.view_more, parent, false);
+        }
+
+
         itemView.getLayoutParams().width = (int) (getScreenWidth() / 1.5);
         return new MyViewHolder(itemView);
     }
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        final ShopSaleModel items = allProductPojoList.get(position);
 
-        holder.tv_fragment.animate().alpha(0f).setDuration(2000);
-        holder.tv_fragment.animate().alpha(1f).setDuration(2000);
-        holder.tv_fragment.bringToFront();
-        holder.tv_product_name.setText(items.getName());
-        RequestOptions requestOptions = new RequestOptions();
-        requestOptions.placeholder(R.drawable.placeholder_logo);
-        requestOptions.fitCenter();
+        if (position==allProductPojoList.size())
+        {
 
-        holder.shimmer_view_container1.startShimmerAnimation();
-        shimmer.start(holder.shimmer_premium);
 
-        Picasso.with(mctx).load(WebServiceURLs.SHOP_IMAGE + items.getImage()).resize(120, 120).into(holder.iv_product_image1);
-        Picasso.with(mctx).load(WebServiceURLs.SHOP_IMAGE + items.getImage2()).resize(120, 120).into(holder.iv_product_image2);
-       // Glide.with(mctx).load("http://4.bp.blogspot.com/-zlCqi4iWQb8/Tk_iLyLnoVI/AAAAAAAAED4/egErzO8ARQ0/s1600/s%25C3%25BCti+4548.jpg").into(holder.iv_product_image1);
-     //   Glide.with(mctx).setDefaultRequestOptions(requestOptions).load(WebServiceURLs.SHOP_IMAGE + items.getImage2()).into(holder.iv_product_image2);
-        holder.tv_price_range.setText("" + items.getLow_price() + "-" + items.getHigh_price());
-        holder.tv_desc.setText(items.getDescription());
-        if (!items.getDiscount().equals("null") )
-        holder.tv_discount.setText(items.getDiscount() + "%");
+           /* holder.cv_add_pref.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //homeFragment.addPost();
+                    mctx.startActivity(new Intent(mctx, MyPreferencesActivity.class));
+
+                }
+            });*/
+
+        }
         else
         {
-            holder.tv_discount.setVisibility(View.GONE);
-        }
+            final ShopSaleModel items = allProductPojoList.get(position);
 
-        if (position == 0) {
-            holder.ratingBar.setRating(2.5f);
-        }
+            holder.tv_fragment.animate().alpha(0f).setDuration(2000);
+            holder.tv_fragment.animate().alpha(1f).setDuration(2000);
+            holder.tv_fragment.bringToFront();
+            holder.tv_product_name.setText(items.getName());
+            RequestOptions requestOptions = new RequestOptions();
+            requestOptions.placeholder(R.drawable.placeholder_logo);
+            requestOptions.fitCenter();
 
-        holder.cv_shop_main.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+            holder.shimmer_view_container1.startShimmerAnimation();
+            shimmer.start(holder.shimmer_premium);
 
-                if (items.getType().equals("shop"))
-                mctx.startActivity(new Intent(mctx,ShopDetailsActivityNew.class).putExtra("shop_id",items.getId()).putExtra("shop_name",items.getName()));
-
-                else
-                    mctx.startActivity(new Intent(mctx, ProductDetailsActivity.class).putExtra("product_id", items.getId()));
+            Picasso.with(mctx).load(WebServiceURLs.SHOP_IMAGE + items.getImage()).resize(120, 120).into(holder.iv_product_image1);
+            Picasso.with(mctx).load(WebServiceURLs.SHOP_IMAGE + items.getImage2()).resize(120, 120).into(holder.iv_product_image2);
+            // Glide.with(mctx).load("http://4.bp.blogspot.com/-zlCqi4iWQb8/Tk_iLyLnoVI/AAAAAAAAED4/egErzO8ARQ0/s1600/s%25C3%25BCti+4548.jpg").into(holder.iv_product_image1);
+            //   Glide.with(mctx).setDefaultRequestOptions(requestOptions).load(WebServiceURLs.SHOP_IMAGE + items.getImage2()).into(holder.iv_product_image2);
+            holder.tv_price_range.setText("" + items.getLow_price() + "-" + items.getHigh_price());
+            holder.tv_desc.setText(items.getDescription());
+            if (!items.getDiscount().equals("null") )
+                holder.tv_discount.setText(items.getDiscount() + "%");
+            else
+            {
+                holder.tv_discount.setVisibility(View.GONE);
             }
-        });
 
+            if (position == 0) {
+                holder.ratingBar.setRating(2.5f);
+            }
+
+            holder.cv_shop_main.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    if (items.getType().equals("shop"))
+                        mctx.startActivity(new Intent(mctx,ShopDetailsActivityNew.class).putExtra("shop_id",items.getId()).putExtra("shop_name",items.getName()));
+
+                    else
+                        mctx.startActivity(new Intent(mctx, ProductDetailsActivity.class).putExtra("product_id", items.getId()));
+                }
+            });
+
+        }
+
+    }
+    @Override
+    public int getItemViewType(int position) {
+        return (position == allProductPojoList.size()) ? R.layout.view_more : R.layout.row_shop_sale;
     }
 
     @Override
     public int getItemCount() {
-        return allProductPojoList.size();
+        return allProductPojoList.size()+1;
     }
+
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
         RoundedImageView iv_product_image2, iv_product_image1;
@@ -115,10 +149,12 @@ public class ShopSaleAdapter extends RecyclerView.Adapter<ShopSaleAdapter.MyView
         ShimmerTextView shimmer_premium;
         CardView cv_shop_main;
         ShimmerFrameLayout shimmer_view_container1;
+        RelativeLayout rl_view_more;
 
         public MyViewHolder(View view) {
             super(view);
             tv_fragment = view.findViewById(R.id.tv_premium);
+            rl_view_more = view.findViewById(R.id.rl_view_more);
             iv_product_image2 = (RoundedImageView) view.findViewById(R.id.iv_product_image2);
             iv_product_image1 = (RoundedImageView) view.findViewById(R.id.iv_product_image1);
             iv_like = (ImageView) view.findViewById(R.id.iv_like);

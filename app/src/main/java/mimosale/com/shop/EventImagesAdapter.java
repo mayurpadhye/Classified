@@ -136,6 +136,36 @@ public class EventImagesAdapter extends RecyclerView.Adapter<EventImagesAdapter.
                     else
                     {
 
+                        if(((EditShopActivity)activity).imageFiles.size()>0) {
+
+
+                            new SweetAlertDialog(mContext, SweetAlertDialog.WARNING_TYPE)
+                                    .setTitleText(mContext.getResources().getString(R.string.are_you_sure))
+                                    .setContentText(mContext.getResources().getString(R.string.want_to_delete))
+                                    .setConfirmText(mContext.getResources().getString(R.string.delete))
+                                    .setCancelText(mContext.getResources().getString(R.string.no))
+
+                                    .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                                        @Override
+                                        public void onClick(SweetAlertDialog sDialog) {
+                                            result_list.remove(position);// removes from list
+                                            ((EditShopActivity) activity).imageFiles.remove(position);
+                                            notifyItemRemoved(position); // updates position
+                                            notifyItemRangeChanged(position, result_list.size());
+                                            sDialog.dismissWithAnimation();
+                                        }
+                                    })
+                                    .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                                        @Override
+                                        public void onClick(SweetAlertDialog sweetAlertDialog) {
+                                            sweetAlertDialog.dismissWithAnimation();
+                                        }
+                                    })
+                                    .show();
+
+
+
+                        }
 
                     }
                 }

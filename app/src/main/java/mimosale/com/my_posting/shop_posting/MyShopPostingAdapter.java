@@ -2,6 +2,8 @@ package mimosale.com.my_posting.shop_posting;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
@@ -29,6 +31,7 @@ import mimosale.com.my_posting.MyShopPojo;
 import mimosale.com.network.RestInterface;
 import mimosale.com.network.RetrofitClient;
 import mimosale.com.network.WebServiceURLs;
+import mimosale.com.shop.EditShopActivity;
 import mimosale.com.shop.ImageVideoData;
 import mimosale.com.shop.ShopDetailActivity;
 import mimosale.com.shop.ShopDetailsActivityNew;
@@ -51,6 +54,8 @@ import com.varunest.sparkbutton.SparkButton;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -151,7 +156,7 @@ ProgressBar p_bar;
                 if (item.getItemId()==R.id.edit)
                 {
 
-                    Intent i=new Intent(mctx,ShopPostingActivity.class);
+                    Intent i=new Intent(mctx,EditShopActivity.class);
                     i.putExtra("shop_name",allProductPojoList.get(position).getName());
 
                     i.putExtra("shop_desc",allProductPojoList.get(position).getDescription());
@@ -159,6 +164,8 @@ ProgressBar p_bar;
 
                     i.putExtra("discount",allProductPojoList.get(position).getDiscount());
                     i.putExtra("start_date",allProductPojoList.get(position).getStart_date());
+                    Toast.makeText(mctx, ""+allProductPojoList.get(position).getStart_date(), Toast.LENGTH_SHORT).show();
+
                     i.putExtra("end_date",allProductPojoList.get(position).getEnd_date());
                     i.putExtra("min_price",allProductPojoList.get(position).getLow_price());
                     i.putExtra("max_price",allProductPojoList.get(position).getHigh_price());
@@ -274,6 +281,9 @@ ProgressBar p_bar;
             //   shimmer.start(shimmer_premium);
         }
     }
+
+
+
 
     public int getScreenWidth() {
 

@@ -1,10 +1,7 @@
 package mimosale.com.shop;
 
 import android.Manifest;
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
@@ -15,8 +12,6 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.content.res.Configuration;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -33,7 +28,6 @@ import android.os.Environment;
 import android.os.Looper;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
@@ -43,13 +37,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
-import android.text.Html;
-import android.text.TextWatcher;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -68,35 +58,8 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.VolleyError;
-import com.android.volley.VolleyLog;
-import com.android.volley.toolbox.StringRequest;
-
-import mimosale.com.R;
-import mimosale.com.helperClass.AppController;
-import mimosale.com.helperClass.CustomFileUtils;
-import mimosale.com.helperClass.CustomPermissions;
-import mimosale.com.helperClass.CustomUtils;
-import mimosale.com.helperClass.PlaceArrayAdapter;
-import mimosale.com.helperClass.PrefManager;
-import mimosale.com.home.HomeActivity;
-import mimosale.com.map.MapsActivity;
-import mimosale.com.network.RestInterface;
-import mimosale.com.network.RetrofitClient;
-import mimosale.com.network.WebServiceURLs;
-import mimosale.com.post.SalePostingActivity;
-import mimosale.com.preferences.AddNewPrefAdapter;
-import mimosale.com.preferences.AllPrefPojo;
-
-import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResolvableApiException;
-import com.google.android.gms.common.api.Result;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -106,15 +69,7 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.SettingsClient;
-import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.PlaceBuffer;
-import com.google.android.gms.location.places.Places;
-import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
-import com.google.android.gms.location.places.ui.PlaceSelectionListener;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.libraries.places.api.model.TypeFilter;
@@ -125,6 +80,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.iceteck.silicompressorr.SiliCompressor;
+import com.viewpagerindicator.CirclePageIndicator;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -132,24 +88,34 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
+import mimosale.com.R;
+import mimosale.com.helperClass.CustomFileUtils;
+import mimosale.com.helperClass.CustomPermissions;
+import mimosale.com.helperClass.CustomUtils;
+import mimosale.com.helperClass.PrefManager;
+import mimosale.com.home.fragments.AllProductPojo;
+import mimosale.com.map.MapsActivity;
+import mimosale.com.network.RestInterface;
+import mimosale.com.network.RetrofitClient;
+import mimosale.com.network.WebServiceURLs;
+import mimosale.com.shop.adapter.ShopImageDetailsAdapter;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -159,10 +125,8 @@ import retrofit.mime.TypedString;
 
 import static mimosale.com.helperClass.CustomPermissions.MY_PERMISSIONS_REQUEST_LOCATION;
 import static mimosale.com.helperClass.CustomUtils.IMAGE_LIMIT;
-import static mimosale.com.helperClass.CustomUtils.VIDEO_LIMIT;
-import static mimosale.com.helperClass.CustomUtils.showToast;
 
-public class ShopPostingActivity extends AppCompatActivity implements View.OnClickListener {
+public class EditShopActivity extends AppCompatActivity implements View.OnClickListener {
     public ArrayList<File> imageFiles;
     Button btn_upload;
     String pref_id1 = "";
@@ -208,6 +172,7 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
     Spinner sp_discount;
     String discount = "";
     private String mLastUpdateTime;
+    List<File> shopImagesPojoList = new ArrayList<>();
 
     // location updates interval - 10sec
     private static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
@@ -236,13 +201,13 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_shop_posting);
-        context = ShopPostingActivity.this;
+        setContentView(R.layout.activity_edit_shop);
+        context = this;
         initView();
         init();
         restoreValuesFromBundle(savedInstanceState);
         getAllPrefData();
-
+        getShopDeatils();
         btn_preview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -259,7 +224,7 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
 
                     mSettingsClient
                             .checkLocationSettings(mLocationSettingsRequest)
-                            .addOnSuccessListener(ShopPostingActivity.this, new OnSuccessListener<LocationSettingsResponse>() {
+                            .addOnSuccessListener(EditShopActivity.this, new OnSuccessListener<LocationSettingsResponse>() {
                                 @SuppressLint("MissingPermission")
                                 @Override
                                 public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
@@ -267,10 +232,10 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
 
 
                                     //noinspection MissingPermission
-                                    startActivityForResult(new Intent(ShopPostingActivity.this, MapsActivity.class), 2);
+                                    startActivityForResult(new Intent(EditShopActivity.this, MapsActivity.class), 2);
                                 }
                             })
-                            .addOnFailureListener(ShopPostingActivity.this, new OnFailureListener() {
+                            .addOnFailureListener(EditShopActivity.this, new OnFailureListener() {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {
                                     int statusCode = ((ApiException) e).getStatusCode();
@@ -282,7 +247,7 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
                                                 // Show the dialog by calling startResolutionForResult(), and check the
                                                 // result in onActivityResult().
                                                 ResolvableApiException rae = (ResolvableApiException) e;
-                                                rae.startResolutionForResult(ShopPostingActivity.this, REQUEST_CHECK_SETTINGS);
+                                                rae.startResolutionForResult(EditShopActivity.this, REQUEST_CHECK_SETTINGS);
                                             } catch (IntentSender.SendIntentException sie) {
                                                 Log.i("ShopPoastingMap", "PendingIntent unable to execute request.");
                                             }
@@ -292,7 +257,7 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
                                                     "fixed here. Fix in Settings.";
                                             Log.e("ShopPoastingMap", errorMessage);
 
-                                            Toast.makeText(ShopPostingActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+                                            Toast.makeText(EditShopActivity.this, errorMessage, Toast.LENGTH_LONG).show();
                                     }
 
                                     updateLocationUI();
@@ -407,7 +372,7 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
         et_city.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(ShopPostingActivity.this, MapsActivity.class));
+                startActivity(new Intent(EditShopActivity.this, MapsActivity.class));
             }
         });
 
@@ -416,14 +381,14 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
             public void onClick(View v) {
 
                 if (!com.google.android.libraries.places.api.Places.isInitialized()) {
-                    com.google.android.libraries.places.api.Places.initialize(ShopPostingActivity.this, getResources().getString(R.string.google_maps_key));
-                    PlacesClient placesClient = com.google.android.libraries.places.api.Places.createClient(ShopPostingActivity.this);
+                    com.google.android.libraries.places.api.Places.initialize(EditShopActivity.this, getResources().getString(R.string.google_maps_key));
+                    PlacesClient placesClient = com.google.android.libraries.places.api.Places.createClient(EditShopActivity.this);
                 }
                 List<com.google.android.libraries.places.api.model.Place.Field> fields = Arrays.asList(com.google.android.libraries.places.api.model.Place.Field.ID, com.google.android.libraries.places.api.model.Place.Field.NAME, com.google.android.libraries.places.api.model.Place.Field.LAT_LNG, com.google.android.libraries.places.api.model.Place.Field.ADDRESS);
                 Intent intent = new Autocomplete.IntentBuilder(
                         AutocompleteActivityMode.OVERLAY, fields)
                         .setTypeFilter(TypeFilter.REGIONS)
-                        .build(ShopPostingActivity.this);
+                        .build(EditShopActivity.this);
                 intent.putExtra("address", "address");
                 startActivityForResult(intent, 1);
                 Log.d("sda", String.valueOf(fields));
@@ -452,99 +417,10 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
             }
 
         });
-        if (!discount.equals(""))
-        {
+        if (!discount.equals("")) {
             switchbutton_discount.setChecked(true);
             ll_discount.setVisibility(View.VISIBLE);
         }
-    }//onCreateClose
-
-
-    public boolean checkLocationPermission() {
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-                ActivityCompat.requestPermissions(ShopPostingActivity.this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION);
-
-
-            } else {
-
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION);
-            }
-
-
-            return false;
-
-        } else {
-            return true;
-        }
-    }
-
-    public void getLocation(double lat, double lon) {
-        Geocoder geocoder = new Geocoder(ShopPostingActivity.this);
-
-        try {
-            List<Address> addressList = geocoder.getFromLocation(lat, lon, 1);
-            if (addressList != null && addressList.size() > 0) {
-                String locality = addressList.get(0).getAddressLine(0);
-                String country = addressList.get(0).getCountryName();
-                if (!locality.isEmpty() && !country.isEmpty())
-                    //resutText.setText(locality + "  " + country);
-                    ll_address_details.setVisibility(View.VISIBLE);
-                et_pincode.setText(addressList.get(0).getPostalCode());
-                et_city.setText(addressList.get(0).getLocality());
-                et_state.setText(addressList.get(0).getAdminArea());
-                et_country.setText(addressList.get(0).getCountryName());
-                et_address_line1.setText(addressList.get(0).getAddressLine(0));
-                lat_new = lat;
-                lon_new = lon;
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    // slide the view from its current position to below itself
-    public void slideDown(View view) {
-
-        TranslateAnimation animate = new TranslateAnimation(
-                0,                 // fromXDelta
-                0,                 // toXDelta
-                0,                 // fromYDelta
-                0); // toYDelta
-        animate.setDuration(500);
-        animate.setFillAfter(true);
-        view.startAnimation(animate);
-        view.setVisibility(View.VISIBLE);
-    }
-
-
-    private void updateLabel() {
-        String myFormat = "yyyy/MM/dd"; //In which you need put here
-        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.JAPAN);
-
-        et_start_date.setText(sdf.format(myCalendar.getTime()));
-    }
-
-    private void setEndDate() {
-        String myFormat = "yyyy/MM/dd"; //In which you need put here
-        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.JAPAN);
-
-        et_end_date.setText(sdf.format(myCalendar.getTime()));
     }
 
     public void getAllPrefData() {
@@ -573,7 +449,7 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
                             allPrefList.add(0, getResources().getString(R.string.select_category));
                             allPrefIds.add(0, getResources().getString(R.string.select_category));
                             ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-                                    ShopPostingActivity.this,
+                                    EditShopActivity.this,
                                     R.layout.row_language,
                                     allPrefList
                             );
@@ -608,168 +484,52 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
         }
 
 
-    }//
-
-    public void init() {
-
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        mSettingsClient = LocationServices.getSettingsClient(this);
-
-        mLocationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                super.onLocationResult(locationResult);
-                // location is received
-                mCurrentLocation = locationResult.getLastLocation();
-                mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
-
-                // updateLocationUI();
-            }
-        };
-
-        mRequestingLocationUpdates = false;
-
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
-        mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
-        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
-        builder.addLocationRequest(mLocationRequest);
-        mLocationSettingsRequest = builder.build();
-        startLocationUpdates();
     }
 
-    private void restoreValuesFromBundle(Bundle savedInstanceState) {
-        if (savedInstanceState != null) {
-            if (savedInstanceState.containsKey("is_requesting_updates")) {
-                mRequestingLocationUpdates = savedInstanceState.getBoolean("is_requesting_updates");
+    private void updateLabel() {
+        String myFormat = "yyyy/MM/dd"; //In which you need put here
+        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.JAPAN);
+
+        et_start_date.setText(sdf.format(myCalendar.getTime()));
+    }
+
+    private void setEndDate() {
+        String myFormat = "yyyy/MM/dd"; //In which you need put here
+        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.JAPAN);
+
+        et_end_date.setText(sdf.format(myCalendar.getTime()));
+    }
+
+    public boolean checkLocationPermission() {
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+                ActivityCompat.requestPermissions(EditShopActivity.this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        MY_PERMISSIONS_REQUEST_LOCATION);
+
+
+            } else {
+
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        MY_PERMISSIONS_REQUEST_LOCATION);
             }
 
-            if (savedInstanceState.containsKey("last_known_location")) {
-                mCurrentLocation = savedInstanceState.getParcelable("last_known_location");
-            }
 
-            if (savedInstanceState.containsKey("last_updated_on")) {
-                mLastUpdateTime = savedInstanceState.getString("last_updated_on");
-            }
+            return false;
+
+        } else {
+            return true;
         }
-
-        updateLocationUI();
-    }
-
-    private void updateLocationUI() {
-        if (mCurrentLocation != null) {
-
-            lat_new = mCurrentLocation.getLatitude();
-            lon_new = mCurrentLocation.getLongitude();
-            getLocation(lat_new, lon_new);
-
-            // giving a blink animation on TextView
-
-        }
-
-
-    }
-
-    public void find_Location() {
-        Log.d("Find Location", "in find_location");
-
-        String location_context = Context.LOCATION_SERVICE;
-        LocationManager locationManager = (LocationManager) getSystemService(location_context);
-        List<String> providers = locationManager.getProviders(true);
-        for (String provider : providers) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
-                return;
-            }
-            locationManager.requestLocationUpdates(provider, 1000, 0,
-                    new LocationListener() {
-
-                        public void onLocationChanged(Location location) {
-                        }
-
-                        public void onProviderDisabled(String provider) {
-                        }
-
-                        public void onProviderEnabled(String provider) {
-                        }
-
-                        public void onStatusChanged(String provider, int status,
-                                                    Bundle extras) {
-                        }
-                    });
-            Location location = locationManager.getLastKnownLocation(provider);
-            if (location != null) {
-                double latitude = location.getLatitude();
-                double longitude = location.getLongitude();
-
-                //   addr = ConvertPointToLocation(latitude, longitude);
-                //String temp_c = SendToUrl(addr);
-            }
-        }
-    }
-
-    private void startLocationUpdates() {
-        mSettingsClient
-                .checkLocationSettings(mLocationSettingsRequest)
-                .addOnSuccessListener(this, new OnSuccessListener<LocationSettingsResponse>() {
-                    @SuppressLint("MissingPermission")
-                    @Override
-                    public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
-                        Log.i("ShopPoastingMap", "All location settings are satisfied.");
-
-
-                        //noinspection MissingPermission
-                        mFusedLocationClient.requestLocationUpdates(mLocationRequest,
-                                mLocationCallback, Looper.myLooper());
-                        find_Location();
-                        updateLocationUI();
-                    }
-                })
-                .addOnFailureListener(this, new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        int statusCode = ((ApiException) e).getStatusCode();
-                        switch (statusCode) {
-                            case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                                Log.i("ShopPoastingMap", "Location settings are not satisfied. Attempting to upgrade " +
-                                        "location settings ");
-                                try {
-                                    // Show the dialog by calling startResolutionForResult(), and check the
-                                    // result in onActivityResult().
-                                    ResolvableApiException rae = (ResolvableApiException) e;
-                                    rae.startResolutionForResult(ShopPostingActivity.this, REQUEST_CHECK_SETTINGS);
-                                } catch (IntentSender.SendIntentException sie) {
-                                    Log.i("ShopPoastingMap", "PendingIntent unable to execute request.");
-                                }
-                                break;
-                            case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                                String errorMessage = "Location settings are inadequate, and cannot be " +
-                                        "fixed here. Fix in Settings.";
-                                Log.e("ShopPoastingMap", errorMessage);
-
-                                Toast.makeText(ShopPostingActivity.this, errorMessage, Toast.LENGTH_LONG).show();
-                        }
-
-                        updateLocationUI();
-                    }
-                });
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putBoolean("is_requesting_updates", mRequestingLocationUpdates);
-        outState.putParcelable("last_known_location", mCurrentLocation);
-        outState.putString("last_updated_on", mLastUpdateTime);
-
     }
 
     public void initView() {
@@ -804,7 +564,7 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
         radioGroup.clearCheck();
         p_bar = findViewById(R.id.p_bar);
         ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>
-                (ShopPostingActivity.this, android.R.layout.simple_spinner_item,
+                (EditShopActivity.this, android.R.layout.simple_spinner_item,
                         getResources().getStringArray(R.array.discount_array)); //selected item will look like a spinner set from XML
         spinnerArrayAdapter.setDropDownViewResource(android.R.layout
                 .simple_spinner_dropdown_item);
@@ -816,7 +576,7 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 RadioButton rb = (RadioButton) group.findViewById(checkedId);
                 if (null != rb && checkedId > -1) {
-                    Toast.makeText(ShopPostingActivity.this, rb.getText(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(EditShopActivity.this, rb.getText(), Toast.LENGTH_SHORT).show();
                     if (rb.getText().equals(getResources().getString(R.string.search_by_pincode))) {
                         tl_pincode.setVisibility(View.VISIBLE);
                     } else {
@@ -841,12 +601,12 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
         imageFiles = new ArrayList<>();
         llm_images = new LinearLayoutManager(getApplicationContext());
         llm_images.setOrientation(LinearLayoutManager.HORIZONTAL);
-        progressDialog = new ProgressDialog(ShopPostingActivity.this);
+        progressDialog = new ProgressDialog(EditShopActivity.this);
         progressDialog.setTitle(getString(R.string.app_name));
         progressDialog.setMessage(getString(R.string.please_wait));
         progressDialog.setCanceledOnTouchOutside(false);
         image_thumbnails = new ArrayList<ImageVideoData>();
-        adapter = new EventImagesAdapter(ShopPostingActivity.this, ShopPostingActivity.this, image_thumbnails, "create");
+        adapter = new EventImagesAdapter(EditShopActivity.this, EditShopActivity.this, image_thumbnails, "update");
         video_thumbnails = new ArrayList<>();
         btn_upload = findViewById(R.id.btn_upload);
         rv_images = findViewById(R.id.rv_images);
@@ -901,7 +661,6 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
             try {
 
                 String shop_name = i.getStringExtra("shop_name");
-
                 String shop_desc = i.getStringExtra("shop_desc");
                 String shop_category = i.getStringExtra("shop_category");
                 String discount = i.getStringExtra("discount");
@@ -932,24 +691,14 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
                         }
                     }
                 }
-
-
-//sp_discount.setSelection();
-
-
                 et_shop_name.setText(shop_name);
                 et_shop_desc.setText(shop_desc);
-
-
                 if (!max_price.equals("null")) {
                     et_max_price.setText(max_price);
                 }
-
                 if (!min_price.equals("null")) {
                     et_min_price.setText(min_price);
                 }
-                Toast.makeText(context, ""+start_date, Toast.LENGTH_SHORT).show();
-
                 et_start_date.setText(start_date);
                 et_end_date.setText(end_date);
                 et_pincode.setText(pincode);
@@ -958,7 +707,8 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
                 et_address_line2.setText(address_line_2);
                 et_phone.setText(phone_number);
                 et_hash_tag.setText(hash_tag);
-                et_url.setText(web_url);
+                String webUrl = web_url.substring(0, 7);
+                et_url.setText(webUrl);
                 et_state.setText(state);
                 et_country.setText(country);
             } catch (Exception e) {
@@ -967,8 +717,102 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
         }
 
 
-    }//initViewclose
+    }
 
+    public void init() {
+
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        mSettingsClient = LocationServices.getSettingsClient(this);
+
+        mLocationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                super.onLocationResult(locationResult);
+                // location is received
+                mCurrentLocation = locationResult.getLastLocation();
+                mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
+
+                // updateLocationUI();
+            }
+        };
+
+        mRequestingLocationUpdates = false;
+
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
+        mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
+        builder.addLocationRequest(mLocationRequest);
+        mLocationSettingsRequest = builder.build();
+        startLocationUpdates();
+    }
+
+    private void restoreValuesFromBundle(Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey("is_requesting_updates")) {
+                mRequestingLocationUpdates = savedInstanceState.getBoolean("is_requesting_updates");
+            }
+
+            if (savedInstanceState.containsKey("last_known_location")) {
+                mCurrentLocation = savedInstanceState.getParcelable("last_known_location");
+            }
+
+            if (savedInstanceState.containsKey("last_updated_on")) {
+                mLastUpdateTime = savedInstanceState.getString("last_updated_on");
+            }
+        }
+
+        updateLocationUI();
+    }
+
+    private void startLocationUpdates() {
+        mSettingsClient
+                .checkLocationSettings(mLocationSettingsRequest)
+                .addOnSuccessListener(this, new OnSuccessListener<LocationSettingsResponse>() {
+                    @SuppressLint("MissingPermission")
+                    @Override
+                    public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
+                        Log.i("ShopPoastingMap", "All location settings are satisfied.");
+
+
+                        //noinspection MissingPermission
+                        mFusedLocationClient.requestLocationUpdates(mLocationRequest,
+                                mLocationCallback, Looper.myLooper());
+                        find_Location();
+                        updateLocationUI();
+                    }
+                })
+                .addOnFailureListener(this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        int statusCode = ((ApiException) e).getStatusCode();
+                        switch (statusCode) {
+                            case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                                Log.i("ShopPoastingMap", "Location settings are not satisfied. Attempting to upgrade " +
+                                        "location settings ");
+                                try {
+                                    // Show the dialog by calling startResolutionForResult(), and check the
+                                    // result in onActivityResult().
+                                    ResolvableApiException rae = (ResolvableApiException) e;
+                                    rae.startResolutionForResult(EditShopActivity.this, REQUEST_CHECK_SETTINGS);
+                                } catch (IntentSender.SendIntentException sie) {
+                                    Log.i("ShopPoastingMap", "PendingIntent unable to execute request.");
+                                }
+                                break;
+                            case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                                String errorMessage = "Location settings are inadequate, and cannot be " +
+                                        "fixed here. Fix in Settings.";
+                                Log.e("ShopPoastingMap", errorMessage);
+
+                                Toast.makeText(EditShopActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+                        }
+
+                        updateLocationUI();
+                    }
+                });
+    }
 
     public void shopPostingValidation(String type) {
 
@@ -1137,16 +981,10 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
 
         if (type.equals("save")) {
 
-            if (isUpdate.equals("update_shop")) {
-
-                updateShopDetails();
-
-            } else {
-                addShopDetails();
-            }
+            updateShopDetails();
 
         } else {
-            Intent i = new Intent(ShopPostingActivity.this, ShopPostingPreviewNew.class);
+            Intent i = new Intent(EditShopActivity.this, ShopPostingPreviewNew.class);
             i.putExtra("shop_name", et_shop_name.getText().toString());
             i.putExtra("type", type);
             JsonArray jsonElements = (JsonArray) new Gson().toJsonTree(image_thumbnails);
@@ -1188,22 +1026,142 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
 
     }
 
-
-    public static boolean isDateAfter(String startDate, String endDate) {
+    public void getShopDeatils() {
         try {
-            String myFormatString = "yyyy/MM/dd"; // for example
-            SimpleDateFormat df = new SimpleDateFormat(myFormatString);
-            Date date1 = df.parse(endDate);
-            Date startingDate = df.parse(startDate);
+            pDialog.show();
+            RetrofitClient retrofitClient = new RetrofitClient();
+            RestInterface service = retrofitClient.getAPIClient(WebServiceURLs.DOMAIN_NAME);
+            service.getShopDetails(shop_id, PrefManager.getInstance(EditShopActivity.this).getUserId(), new Callback<JsonElement>() {
+                @Override
+                public void success(JsonElement jsonElement, Response response) {
+                    //this method call if webservice success
+                    try {
+                        pDialog.dismiss();
 
-            if (date1.after(startingDate))
-                return true;
-            else
-                return false;
+
+                        JSONObject jsonObject = new JSONObject(jsonElement.toString());
+                        String status = jsonObject.getString("status");
+
+                        if (status.equals("1")) {
+                            JSONArray data = jsonObject.getJSONArray("data");
+                            for (int i = 0; i < data.length(); i++) {
+                                JSONObject j1 = data.getJSONObject(i);
+                                String id = j1.getString("id");
+                                String name = j1.getString("name");
+                                String preference_id = j1.getString("preference_id");
+                                String address_line1 = j1.getString("address_line1");
+                                String address_line2 = j1.getString("address_line2");
+                                String city = j1.getString("city");
+                                String state = j1.getString("state");
+                                String country = j1.getString("country");
+                                String pincode = j1.getString("pincode");
+                                String lat = j1.getString("lat");
+                                String lon = j1.getString("lon");
+                                String low_price = j1.getString("low_price");
+                                String high_price = j1.getString("high_price");
+                                String discount = j1.getString("discount");
+                                String start_date = j1.getString("start_date");
+                                String end_date = j1.getString("end_date");
+                                String followStatus = j1.getString("followStatus");
+                                String phone = j1.getString("phone");
+                                String hash_tags = j1.getString("hash_tags");
+                                String description = j1.getString("description");
+                                String web_url = j1.getString("web_url");
+                                JSONArray shop_images = j1.getJSONArray("shop_images");
+                                shopImagesPojoList.clear();
+
+
+                                ///    expTv1.setText(description);
+                                ArrayList<String> selected_image = new ArrayList<>();
+                                if (shop_images.length() > 0) {
+
+                                    for (int j = 0; j < shop_images.length(); j++) {
+
+                                        JSONObject j2 = shop_images.getJSONObject(j);
+                                        String image_id = j2.getString("id");
+                                        String image = j2.getString("image");
+
+                                        selected_image.add(WebServiceURLs.SHOP_IMAGE + image);
+
+
+                                    }
+                                    new ImageCompressAsyncTask1(context).execute(selected_image);
+                                       /* tv_photos.setText("" + shop_images.length() + " " + getResources().getString(R.string.photos));
+                                        ShopImageDetailsAdapter bannerAdapter = new ShopImageDetailsAdapter(EditShopActivity.this, shopImagesPojoList);
+                                        mPager.setAdapter(bannerAdapter);*/
+
+
+                                }
+
+                                ll_address_details.setVisibility(View.VISIBLE);
+                                et_pincode.setText(pincode);
+                                et_city.setText(city);
+                                et_state.setText(state);
+                                et_address_line1.setText(address_line1);
+                                et_address_line2.setText(address_line2);
+                                et_phone.setText(phone);
+
+
+                                JSONArray products = j1.getJSONArray("products");
+
+                                if (products.length() > 0) {
+                                    for (int k = 0; k < products.length(); k++) {
+                                        JSONObject j2 = products.getJSONObject(k);
+                                        String p_id = j2.getString("id");
+                                        String p_name = j2.getString("name");
+                                        String p_shop_id = j2.getString("shop_id");
+                                        String p_user_id = j2.getString("user_id");
+                                        String p_description = j2.getString("description");
+                                        String p_price = j2.getString("price");
+                                        String p_hash_tag = j2.getString("hash_tags");
+                                        String status1 = j2.getString("status");
+                                        String image1 = "";
+                                        String image2 = "";
+                                        if (j2.has("image1")) {
+                                            image1 = j2.getString("image1");
+                                        }
+                                        if (j2.has("image2")) {
+                                            image2 = j2.getString("image2");
+                                        }
+
+
+                                        String image = "";
+
+
+                                    }
+
+
+                                }
+
+
+                            }
+                        }
+
+
+                    } catch (JSONException | NullPointerException e) {
+                        e.printStackTrace();
+                        pDialog.dismiss();
+                        Log.i("detailsException", "" + e.toString());
+
+                    }
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+                    pDialog.dismiss();
+                    Toast.makeText(EditShopActivity.this, getResources().getString(R.string.check_internet), Toast.LENGTH_LONG).show();
+                    Log.i("fdfdfdfdfdf", "" + error.getMessage());
+
+                }
+            });
         } catch (Exception e) {
+            e.printStackTrace();
+            pDialog.dismiss();
+            Log.i("detailsException", "" + e.toString());
 
-            return false;
+
         }
+
     }
 
     public void updateShopDetails() {
@@ -1301,99 +1259,140 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
 
     }
 
-    public void addShopDetails() {
-        try {
-            PrefManager.getInstance(context).getUserId();
-            p_bar.setVisibility(View.VISIBLE);
+    public class ImageCompressAsyncTask1 extends AsyncTask<List<String>, String, String> {
+        Context mContext;
+        Uri selectedImage;
 
-            MultipartTypedOutput multipartTypedOutput = new MultipartTypedOutput();
-            multipartTypedOutput.addPart("name", new TypedString(et_shop_name.getText().toString().trim()));
-            multipartTypedOutput.addPart("preference_id", new TypedString(pref_id));
-            multipartTypedOutput.addPart("address_line1", new TypedString(et_address_line1.getText().toString().trim()));
-            multipartTypedOutput.addPart("address_line2", new TypedString(et_address_line2.getText().toString().trim()));
-            multipartTypedOutput.addPart("city", new TypedString(et_city.getText().toString()));
-            multipartTypedOutput.addPart("state", new TypedString("AM"));
-            multipartTypedOutput.addPart("country", new TypedString("AM"));
-            multipartTypedOutput.addPart("pincode", new TypedString(et_pincode.getText().toString()));
-            multipartTypedOutput.addPart("lat", new TypedString("" + lat_new));
-            multipartTypedOutput.addPart("lon", new TypedString("" + lon_new));
-            multipartTypedOutput.addPart("low_price", new TypedString(et_min_price.getText().toString()));
-            multipartTypedOutput.addPart("high_price", new TypedString(et_max_price.getText().toString()));
-            multipartTypedOutput.addPart("min_discount", new TypedString(""));
-            multipartTypedOutput.addPart("max_discount", new TypedString(""));
-            multipartTypedOutput.addPart("discount", new TypedString(discount));
-            multipartTypedOutput.addPart("phone", new TypedString(et_phone.getText().toString()));
-            multipartTypedOutput.addPart("hash_tags", new TypedString(et_hash_tag.getText().toString()));
-            multipartTypedOutput.addPart("description", new TypedString(et_shop_desc.getText().toString()));
-            multipartTypedOutput.addPart("web_url", new TypedString(tv_url.getText().toString() + "" + et_url.getText().toString()));
-            multipartTypedOutput.addPart("status", new TypedString("1"));
-            multipartTypedOutput.addPart("user_id", new TypedString(PrefManager.getInstance(context).getUserId()));
+        public ImageCompressAsyncTask1(Context context) {
+            mContext = context;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog = new ProgressDialog(EditShopActivity.this);
+            progressDialog.setTitle(getString(R.string.app_name));
+            progressDialog.setMessage(getString(R.string.please_wait));
+            progressDialog.setCanceledOnTouchOutside(false);
+            //  progressDialog.show();
+        }
+
+        @Override
+        protected String doInBackground(List<String>... paths) {
+            //final ArrayList<String> filePaths=
+            //getImages(paths[0]);
+            progressDialog.dismiss();
+            for (String filePaths : paths[0]) {
+                //   final int finalI = i;
+                String filePath = null;
+                try {
+                    URL url = new URL(filePaths);
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection.setDoInput(true);
+                    connection.connect();
+                    InputStream input = connection.getInputStream();
+                    Bitmap myBitmap = BitmapFactory.decodeStream(input);
 
 
-            if (imageFiles.size() > 0) {
-                for (int i = 0; i < imageFiles.size(); i++) {
-                    multipartTypedOutput.addPart("shop_photos[]", new TypedFile("application/octet-stream", new File(imageFiles.get(i).getAbsolutePath())));
+                    ImageVideoData image_v = new ImageVideoData();
+                    image_v.setBitmap(myBitmap);
+                    image_v.setPath(filePaths);
+                    image_thumbnails.add(image_v);
+                    File file = getDownloadFile(myBitmap);
+
+                    if (file == null)
+
+
+                        try {
+                            FileOutputStream out = new FileOutputStream(file);
+                            myBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+                            out.flush();
+                            out.close();
+
+                            // here you can get file in "file" variable.
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    imageFiles.add(file);
+
+                 /*   filePath = SiliCompressor.with(EditShopActivity.this).compress(filePaths, new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + getPackageName() + "/media/images"));
+                    File imageFile = new File(filePath);
+                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                    byte[] bt = bos.toByteArray();
+                    String encodedImageString1 = Base64.encodeToString(bt, Base64.DEFAULT);
+                    byte[] decodedString1 = Base64.decode(encodedImageString1.getBytes(), Base64.NO_WRAP);
+                    Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString1, 0, decodedString1.length);
+                    ImageVideoData image_v = new ImageVideoData();
+                    image_v.setBitmap(decodedByte);
+                    image_v.setPath(filePath);
+                    image_thumbnails.add(image_v);
+                    imageFiles.add(imageFile);
+                    Thread.sleep(500);
+                    progressDialog.dismiss();*/
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            } else {
-                multipartTypedOutput.addPart("shop_photos", new TypedString(""));
             }
-
-
-            RetrofitClient retrofitClient = new RetrofitClient();
-            RestInterface service = retrofitClient.getAPIClient(WebServiceURLs.DOMAIN_NAME);
-            service.addShopPosting("Bearer " + PrefManager.getInstance(context).getApiToken(),
-                    multipartTypedOutput, new Callback<JsonElement>() {
-                        @Override
-                        public void success(JsonElement jsonElement, Response response) {
-                            //this method call if webservice success
-                            try {
-                                JSONObject jsonObject = new JSONObject(jsonElement.toString());
-                                String status = jsonObject.getString("status");
-
-                                if (status.equals("1")) {
-
-                                    Toast.makeText(context, "" + jsonObject.getString("message"), Toast.LENGTH_SHORT).show();
-
-                                    new SweetAlertDialog(context, SweetAlertDialog.SUCCESS_TYPE)
-                                            .setTitleText(getResources().getString(R.string.success))
-                                            .setContentText(getResources().getString(R.string.shop_posting_success))
-                                            .setConfirmText(getResources().getString(R.string.ok))
-                                            .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
-                                                @Override
-                                                public void onClick(SweetAlertDialog sweetAlertDialog) {
-                                                    finish();
-                                                }
-                                            })
-                                            .show();
-
-                                } else {
-                                    Toast.makeText(context, "" + jsonObject.getString("message"), Toast.LENGTH_SHORT).show();
-
-                                }
-
-                                p_bar.setVisibility(View.GONE);
-                            } catch (JSONException | NullPointerException e) {
-                                e.printStackTrace();
-
-                            }
-                        }
-
-                        @Override
-                        public void failure(RetrofitError error) {
-                            p_bar.setVisibility(View.GONE);
-                            Toast.makeText(context, getString(R.string.check_internet), Toast.LENGTH_LONG).show();
-                            Log.i("fdfdfdfdfdf", "" + error.getMessage());
-
-                        }
-                    });
-        } catch (Exception e) {
-            e.printStackTrace();
-
+            return "";
         }
 
 
+        @Override
+        protected void onPostExecute(String compressedFilePath) {
+            super.onPostExecute(compressedFilePath);
+            adapter.notifyDataSetChanged();
+            progressDialog.dismiss();
+            if (progressDialog != null && progressDialog.isShowing()) {
+                progressDialog.dismiss();
+            }
+            progressDialog.dismiss();
+            adapter = new EventImagesAdapter(EditShopActivity.this, EditShopActivity.this, image_thumbnails, "update");
+            rv_images.setLayoutManager(llm_images);
+            rv_images.setAdapter(adapter);
+            Log.i("Silicompressor", "Path: " + compressedFilePath);
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+        }
     }
 
+    public File getDownloadFile(Bitmap bitmap1) {
+
+        OutputStream output;
+
+        // Retrieve the image from the res folder
+
+        File filepath = Environment.getExternalStorageDirectory();
+
+        // Create a new folder in SD Card
+        File dir = new File(filepath.getAbsolutePath()
+                + "/Save Image Tutorial/");
+        dir.mkdirs();
+        Long tsLong = System.currentTimeMillis() / 1000;
+        String ts = tsLong.toString();
+        // Create a name for the saved image
+        File file = new File(dir, ts + ".png");
+
+        // Show a toast message on successful save
+
+        try {
+
+            output = new FileOutputStream(file);
+
+            // Compress into png format image from 0% - 100%
+            bitmap1.compress(Bitmap.CompressFormat.PNG, 100, output);
+            output.flush();
+            output.close();
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+
+        return file;
+    }
 
     private boolean isValidMobile(String phone) {
         boolean check = false;
@@ -1411,6 +1410,128 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
         return check;
     }
 
+    public static boolean isDateAfter(String startDate, String endDate) {
+        try {
+            String myFormatString = "yyyy/MM/dd"; // for example
+            SimpleDateFormat df = new SimpleDateFormat(myFormatString);
+            Date date1 = df.parse(endDate);
+            Date startingDate = df.parse(startDate);
+
+            if (date1.after(startingDate))
+                return true;
+            else
+                return false;
+        } catch (Exception e) {
+
+            return false;
+        }
+    }
+
+    public void slideDown(View view) {
+
+        TranslateAnimation animate = new TranslateAnimation(
+                0,                 // fromXDelta
+                0,                 // toXDelta
+                0,                 // fromYDelta
+                0); // toYDelta
+        animate.setDuration(500);
+        animate.setFillAfter(true);
+        view.startAnimation(animate);
+        view.setVisibility(View.VISIBLE);
+    }
+
+    public void find_Location() {
+        Log.d("Find Location", "in find_location");
+
+        String location_context = Context.LOCATION_SERVICE;
+        LocationManager locationManager = (LocationManager) getSystemService(location_context);
+        List<String> providers = locationManager.getProviders(true);
+        for (String provider : providers) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
+            locationManager.requestLocationUpdates(provider, 1000, 0,
+                    new LocationListener() {
+
+                        public void onLocationChanged(Location location) {
+                        }
+
+                        public void onProviderDisabled(String provider) {
+                        }
+
+                        public void onProviderEnabled(String provider) {
+                        }
+
+                        public void onStatusChanged(String provider, int status,
+                                                    Bundle extras) {
+                        }
+                    });
+            Location location = locationManager.getLastKnownLocation(provider);
+            if (location != null) {
+                double latitude = location.getLatitude();
+                double longitude = location.getLongitude();
+
+                //   addr = ConvertPointToLocation(latitude, longitude);
+                //String temp_c = SendToUrl(addr);
+            }
+        }
+    }
+
+    private void updateLocationUI() {
+        if (mCurrentLocation != null) {
+
+            lat_new = mCurrentLocation.getLatitude();
+            lon_new = mCurrentLocation.getLongitude();
+            getLocation(lat_new, lon_new);
+
+            // giving a blink animation on TextView
+
+        }
+
+
+    }
+
+    public void getLocation(double lat, double lon) {
+        Geocoder geocoder = new Geocoder(EditShopActivity.this);
+
+        try {
+            List<Address> addressList = geocoder.getFromLocation(lat, lon, 1);
+            if (addressList != null && addressList.size() > 0) {
+                String locality = addressList.get(0).getAddressLine(0);
+                String country = addressList.get(0).getCountryName();
+                if (!locality.isEmpty() && !country.isEmpty())
+                    //resutText.setText(locality + "  " + country);
+                    ll_address_details.setVisibility(View.VISIBLE);
+                et_pincode.setText(addressList.get(0).getPostalCode());
+                et_city.setText(addressList.get(0).getLocality());
+                et_state.setText(addressList.get(0).getAdminArea());
+                et_country.setText(addressList.get(0).getCountryName());
+                et_address_line1.setText(addressList.get(0).getAddressLine(0));
+                lat_new = lat;
+                lon_new = lon;
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("is_requesting_updates", mRequestingLocationUpdates);
+        outState.putParcelable("last_known_location", mCurrentLocation);
+        outState.putString("last_updated_on", mLastUpdateTime);
+
+    }
+
     public void showErrorDialog(String title, String msg) {
         new SweetAlertDialog(this, SweetAlertDialog.ERROR_TYPE)
                 .setTitleText("Oops...")
@@ -1419,28 +1540,26 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
                 .show();
     }
 
-
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_upload:
                 CustomUtils.hideKeyboard(v, getApplicationContext());
                 if (imageFiles.size() >= IMAGE_LIMIT) {
-                    CustomUtils.showAlertDialog(ShopPostingActivity.this, getString(R.string.can_not_share_more_than_five_images));
+                    CustomUtils.showAlertDialog(EditShopActivity.this, getString(R.string.can_not_share_more_than_five_images));
                 } else {
                     selectImage();
                 }
                 break;
 
             case R.id.btn_preview:
-                startActivity(new Intent(ShopPostingActivity.this, ShopPreviewActivity.class));
+                startActivity(new Intent(EditShopActivity.this, ShopPreviewActivity.class));
                 //SaveShopPostData();
                 break;
             case R.id.iv_back:
                 finish();
                 break;
         }
-
     }
 
     private void selectImage() {
@@ -1453,14 +1572,14 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
 
                 switch (i) {
                     case 0:
-                        boolean result_camera = CustomPermissions.checkCameraPermission(ShopPostingActivity.this);
+                        boolean result_camera = CustomPermissions.checkCameraPermission(EditShopActivity.this);
                         if (result_camera) {
                             cameraImageIntent();
                         }
                         break;
 
                     case 1:
-                        boolean result_gallery = CustomPermissions.checkPermissionForFileAccess(ShopPostingActivity.this);
+                        boolean result_gallery = CustomPermissions.checkPermissionForFileAccess(EditShopActivity.this);
                         if (result_gallery) {
                             galleryImageIntent();
                         }
@@ -1541,7 +1660,7 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
                         selected_image.add(tempUri.toString());
                         new ImageCompressAsyncTask(this).execute(selected_image);
                     } else {
-                        CustomUtils.showAlertDialog(ShopPostingActivity.this, getString(R.string.can_not_share_more_than_five_images));
+                        CustomUtils.showAlertDialog(EditShopActivity.this, getString(R.string.can_not_share_more_than_five_images));
                     }
                     break;
 
@@ -1551,7 +1670,7 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
                         int imageCount = imageFiles.size();
                         int selectedImages = imageCount + count;
                         if (selectedImages > IMAGE_LIMIT) {
-                            CustomUtils.showAlertDialog(ShopPostingActivity.this, getString(R.string.can_not_share_more_than_five_images));
+                            CustomUtils.showAlertDialog(EditShopActivity.this, getString(R.string.can_not_share_more_than_five_images));
                             return;
                         } else {
                             ArrayList<String> images = new ArrayList<>();
@@ -1622,7 +1741,7 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
 
                             //    new ImageCompressAsyncTask(CreateEventActivity.this).execute(images);
                             if (imageFiles.size() <= IMAGE_LIMIT) {
-                                adapter = new EventImagesAdapter(ShopPostingActivity.this, ShopPostingActivity.this, image_thumbnails, "create");
+                                adapter = new EventImagesAdapter(EditShopActivity.this, EditShopActivity.this, image_thumbnails, "update");
                                 rv_images.setLayoutManager(llm_images);
                                 rv_images.setAdapter(adapter);
                             } else {
@@ -1634,7 +1753,7 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
                                     }
 
                                 }
-                                CustomUtils.showAlertDialog(ShopPostingActivity.this, getString(R.string.can_not_share_more_than_five_images));
+                                CustomUtils.showAlertDialog(EditShopActivity.this, getString(R.string.can_not_share_more_than_five_images));
                             }
                         }
                     } else if (data.getData() != null) {
@@ -1689,12 +1808,12 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
                                 image_v.setBitmap(rotatedBitmap);
                                 image_v.setPath(picturePath);
                                 image_thumbnails.add(image_v);
-                                adapter = new EventImagesAdapter(ShopPostingActivity.this, ShopPostingActivity.this, image_thumbnails, "create");
+                                adapter = new EventImagesAdapter(EditShopActivity.this, EditShopActivity.this, image_thumbnails, "update");
                                 rv_images.setLayoutManager(llm_images);
                                 rv_images.setAdapter(adapter);
                             }
                         } else {
-                            CustomUtils.showAlertDialog(ShopPostingActivity.this, getString(R.string.can_not_share_more_than_five_images));
+                            CustomUtils.showAlertDialog(EditShopActivity.this, getString(R.string.can_not_share_more_than_five_images));
                         }
                     }
                     break;
@@ -1704,7 +1823,7 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
                     com.google.android.libraries.places.api.model.Place placepick = Autocomplete.getPlaceFromIntent(data);
                     LatLng piclatlng = placepick.getLatLng();
 
-                    Geocoder geocoder = new Geocoder(ShopPostingActivity.this);
+                    Geocoder geocoder = new Geocoder(EditShopActivity.this);
 
                     try {
                         List<Address> addressList = geocoder.getFromLocation(piclatlng.latitude, piclatlng.longitude, 1);
@@ -1734,7 +1853,7 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
             if (data.hasExtra("address")) {
                 intet_from = data.getStringExtra("address");
                 if (data.getStringExtra("address").equals("address")) {
-                    Geocoder geocoder = new Geocoder(ShopPostingActivity.this);
+                    Geocoder geocoder = new Geocoder(EditShopActivity.this);
 
                     try {
                         List<Address> addressList = geocoder.getFromLocation(data.getDoubleExtra("lat", 0.0), data.getDoubleExtra("lon", 0.0), 1);
@@ -1768,7 +1887,6 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
 
     }
 
-
     public class ImageCompressAsyncTask extends AsyncTask<List<String>, String, String> {
         Context mContext;
         Uri selectedImage;
@@ -1780,7 +1898,7 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressDialog = new ProgressDialog(ShopPostingActivity.this);
+            progressDialog = new ProgressDialog(EditShopActivity.this);
             progressDialog.setTitle(getString(R.string.app_name));
             progressDialog.setMessage(getString(R.string.please_wait));
             progressDialog.setCanceledOnTouchOutside(false);
@@ -1796,7 +1914,7 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
                 //   final int finalI = i;
                 String filePath = null;
                 try {
-                    filePath = SiliCompressor.with(ShopPostingActivity.this).compress(filePaths, new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + getPackageName() + "/media/images"));
+                    filePath = SiliCompressor.with(EditShopActivity.this).compress(filePaths, new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + getPackageName() + "/media/images"));
                     File imageFile = new File(filePath);
                     ByteArrayOutputStream bos = new ByteArrayOutputStream();
                     byte[] bt = bos.toByteArray();
@@ -1842,6 +1960,4 @@ public class ShopPostingActivity extends AppCompatActivity implements View.OnCli
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix,
                 true);
     }
-
-
 }

@@ -143,7 +143,9 @@
             android:name=".map.MapsActivity"
             android:label="@string/title_activity_maps" />
         <activity android:name=".products.ProductDetailsActivityNew" />
-        <activity android:name=".shop.ShopPostingPreviewNew"></activity>
+        <activity android:name=".shop.ShopPostingPreviewNew" />
+        <activity android:name=".shop.EditShopActivity" />
+        <activity android:name=".home.AllShopSaleListActivity"></activity>
     </application>
 
 </manifest>
